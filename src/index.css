@@ -1,3 +1,100 @@
+/* ---------- Design tokens — "Lofi Atlas" (dark-first) ---------- */
+
+:root {
+  /* Dusk palette — default */
+  --bg: #241b2e;
+  --bg-2: #2f2340;
+  --surface: #362a47;
+  --surface-2: #3f3153;
+  --ink: #f3e9e4;
+  --muted: #b6a4c4;
+  --line: #4a3b5c;
+
+  --accent: #f0a67d;
+  --accent-strong: #eb8f5e;
+  --accent-ink: #2a1608;
+  --gold: #f2c879;
+  --sage: #8fbfa6;
+  --sage-ink: #0f2118;
+  --rust: #e08a76;
+  --rust-ink: #2c0f08;
+
+  --shadow: 0 18px 44px rgba(15, 8, 20, 0.45);
+  --shadow-soft: 0 8px 22px rgba(15, 8, 20, 0.3);
+
+  --font-display: 'Bricolage Grotesque', 'Sora', system-ui, sans-serif;
+  --font-body: 'Sora', system-ui, -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', monospace;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) {
+    --bg: #f1e6ec;
+    --bg-2: #ecdce8;
+    --surface: #fbf5f8;
+    --surface-2: #f4e9f0;
+    --ink: #362a3d;
+    --muted: #8b7b93;
+    --line: #e1cfdd;
+
+    --accent: #c1683f;
+    --accent-strong: #a8562f;
+    --accent-ink: #fff8f0;
+    --gold: #b8862c;
+    --sage: #4c7b62;
+    --sage-ink: #f4faf6;
+    --rust: #b2503a;
+    --rust-ink: #fff5f1;
+
+    --shadow: 0 18px 40px rgba(90, 60, 80, 0.16);
+    --shadow-soft: 0 8px 20px rgba(90, 60, 80, 0.12);
+  }
+}
+
+:root[data-theme='light'] {
+  --bg: #f1e6ec;
+  --bg-2: #ecdce8;
+  --surface: #fbf5f8;
+  --surface-2: #f4e9f0;
+  --ink: #362a3d;
+  --muted: #8b7b93;
+  --line: #e1cfdd;
+
+  --accent: #c1683f;
+  --accent-strong: #a8562f;
+  --accent-ink: #fff8f0;
+  --gold: #b8862c;
+  --sage: #4c7b62;
+  --sage-ink: #f4faf6;
+  --rust: #b2503a;
+  --rust-ink: #fff5f1;
+
+  --shadow: 0 18px 40px rgba(90, 60, 80, 0.16);
+  --shadow-soft: 0 8px 20px rgba(90, 60, 80, 0.12);
+}
+
+:root[data-theme='dark'] {
+  --bg: #241b2e;
+  --bg-2: #2f2340;
+  --surface: #362a47;
+  --surface-2: #3f3153;
+  --ink: #f3e9e4;
+  --muted: #b6a4c4;
+  --line: #4a3b5c;
+
+  --accent: #f0a67d;
+  --accent-strong: #eb8f5e;
+  --accent-ink: #2a1608;
+  --gold: #f2c879;
+  --sage: #8fbfa6;
+  --sage-ink: #0f2118;
+  --rust: #e08a76;
+  --rust-ink: #2c0f08;
+
+  --shadow: 0 18px 44px rgba(15, 8, 20, 0.45);
+  --shadow-soft: 0 8px 22px rgba(15, 8, 20, 0.3);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -10,9 +107,9 @@ body,
 }
 
 body {
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  background: radial-gradient(circle at 30% 20%, #1b2440 0%, #0b0f1a 60%, #06080f 100%);
-  color: #e5e9f0;
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--ink);
   overflow: hidden;
 }
 
@@ -22,6 +119,6 @@ button {
 }
 
 ::selection {
-  background: #facc15;
-  color: #0b0f1a;
+  background: var(--gold);
+  color: var(--accent-ink);
 }

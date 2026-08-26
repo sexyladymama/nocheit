@@ -60,7 +60,7 @@ export default function QuizModal({ country, allCountries, onPass, onClose }: Qu
     return (
       <div className="modal-overlay" onClick={onClose}>
         <div className="modal" onClick={(e) => e.stopPropagation()}>
-          <p>Pas assez de données pour générer un quiz sur ce pays 😅</p>
+          <p>Pas assez de données pour générer un quiz sur ce pays.</p>
           <button className="btn btn-primary" onClick={onClose}>
             Fermer
           </button>
@@ -79,7 +79,7 @@ export default function QuizModal({ country, allCountries, onPass, onClose }: Qu
         {!finished && current ? (
           <>
             <div className="quiz-progress">
-              Question {index + 1} / {questions.length}
+              {String(index + 1).padStart(2, '0')} / {String(questions.length).padStart(2, '0')}
             </div>
             <h3 className="quiz-question">{current.question}</h3>
             <div className="quiz-options">
@@ -104,12 +104,9 @@ export default function QuizModal({ country, allCountries, onPass, onClose }: Qu
           </>
         ) : (
           <div className="quiz-result">
-            <h3>{passed ? '🎉 Pays débloqué !' : '😬 Raté...'}</h3>
+            <h3>{passed ? 'Pays débloqué' : 'Pas cette fois'}</h3>
             <p>
-              Score : {score} / {questions.length}
-              {passed
-                ? ` — il fallait au moins ${PASS_THRESHOLD} bonnes réponses, bravo !`
-                : ` — il fallait au moins ${PASS_THRESHOLD} bonnes réponses.`}
+              Score {score} / {questions.length} — {PASS_THRESHOLD} bonnes réponses minimum
             </p>
             {passed ? (
               <button className="btn btn-primary" onClick={onClose}>

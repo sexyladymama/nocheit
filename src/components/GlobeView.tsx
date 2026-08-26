@@ -3,13 +3,18 @@ import Globe, { type GlobeInstance } from 'globe.gl';
 import type { MeshPhongMaterial } from 'three';
 import type { PlayableCountry } from '../types';
 
-const COLOR_LOCKED = '#3a4256';
-const COLOR_LOCKED_HOVER = '#525d78';
-const COLOR_UNLOCKED = '#22c55e';
-const COLOR_UNLOCKED_HOVER = '#4ade80';
-const COLOR_SELECTED = '#facc15';
-const COLOR_STROKE = 'rgba(226, 232, 240, 0.45)';
-const COLOR_SIDE = 'rgba(15, 20, 32, 0.85)';
+// Lofi Atlas palette — a globe at dusk. Kept as fixed hex (not CSS tokens):
+// the WebGL scene is its own lit "golden hour" world, independent of the
+// surrounding page's light/dark chrome.
+const COLOR_LOCKED = '#5c4f6e';
+const COLOR_LOCKED_HOVER = '#7a6b90';
+const COLOR_UNLOCKED = '#f0a67d';
+const COLOR_UNLOCKED_HOVER = '#f4bb9c';
+const COLOR_SELECTED = '#f2c879';
+const COLOR_STROKE = 'rgba(243, 233, 228, 0.35)';
+const COLOR_SIDE = 'rgba(30, 20, 40, 0.9)';
+const COLOR_OCEAN = '#332a47';
+const COLOR_ATMOSPHERE = '#f0a67d';
 
 interface GlobeViewProps {
   countries: PlayableCountry[];
@@ -40,8 +45,8 @@ export default function GlobeView({
       .backgroundColor('rgba(0,0,0,0)')
       .showGlobe(true)
       .showAtmosphere(true)
-      .atmosphereColor('#7dd3fc')
-      .atmosphereAltitude(0.18)
+      .atmosphereColor(COLOR_ATMOSPHERE)
+      .atmosphereAltitude(0.22)
       .polygonGeoJsonGeometry((d) => (d as PlayableCountry).geometry as never)
       .polygonAltitude((d) => (d === hoveredRef.current ? 0.02 : 0.006))
       .polygonCapColor((d) => colorFor(d as PlayableCountry, stateRef.current, hoveredRef.current))
@@ -60,7 +65,7 @@ export default function GlobeView({
         stateRef.current.onSelectCountry(d as PlayableCountry);
       });
 
-    (globe.globeMaterial() as MeshPhongMaterial).color.set('#141a2b');
+    (globe.globeMaterial() as MeshPhongMaterial).color.set(COLOR_OCEAN);
 
     globe.pointOfView({ lat: 20, lng: 10, altitude: 2.4 });
     globe.controls().autoRotate = true;
@@ -129,6 +134,6 @@ function labelFor(
   d: PlayableCountry,
   state: { unlocked: Set<string> },
 ): string {
-  const status = state.unlocked.has(d.cca3) ? '🔓 débloqué' : '🔒 verrouillé';
+  const status = state.unlocked.has(d.cca3) ? 'Débloqué' : 'Verrouillé';
   return `<div class="globe-tooltip"><strong>${d.flag ?? ''} ${d.nameFr}</strong><br/>${status}</div>`;
 }
