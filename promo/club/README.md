@@ -19,6 +19,22 @@ seconde : `storyboard.jpg`.
   Serif), comme « NOCHE. UNE APP. TOUTE LA NUIT. » et « Plus de *nuit.* ».
 - Ton pro du site : vouvoiement, « Remplissez vos tables. Gardez le contrôle. »,
   CTA « Devenir partenaire ».
+- Logo avec le « O » jaune comme sur les visuels App Store, icône de l'app
+  (`noche-icon.png`) sur la carte de fin.
+
+## Fidèle à l'app (App Store « Noche Paris » + captures du site)
+
+- Cellules blanches comme l'interface réelle (cartes blanches, boutons noirs
+  en pilule) posées sur le fond noir et or.
+- Vocabulaire des vrais écrans : « Espace club · Noche Club », « Revenus du
+  club · Revenus nets après commission », « Réservations confirmées »,
+  « 30 jours », « Table VIP · 7 pers. · min. 150 € », « Show bouteille
+  +150 € », « Code d'entrée Noche », paiement Apple Pay, bulles de prix sur
+  la carte.
+- Espace partenaire tel que décrit sur l'App Store : horaires, tables,
+  bouteilles, options, événements, stocks, réservations, contrôle d'entrée.
+- `night.jpg` : photo de club du site, teintée or en CSS pour rester dans la
+  palette.
 
 ## Storyboard (120 BPM, une scène = 2 mesures)
 
@@ -26,11 +42,11 @@ seconde : `storyboard.jpg`.
 | --- | --- | --- |
 | 0–4 s | Intro | Un point doré devient le « O » du logo NOCHE · « Espace club » |
 | 4–7 s | Accroche | « Ce soir, votre club affiche *complet.* » |
-| 7–11 s | 01 Calendrier | Création de soirée (line-up, tables, minimum) → « En ligne » |
-| 11–15 s | 02 Réservations | Plan de salle qui se remplit (14/16) + réservations de tables, bouteilles, acomptes, avis |
-| 15–19 s | 03 QR entrée | Réservations du soir cochées + scan QR « Réservation validée » |
-| 19–23 s | 04 Statistiques | CA en direct, courbe, réservations, tables, panier moyen, virements |
-| 23–27 s | 05 Visibilité | Carte 3D, le club en pin doré, les clients qui convergent |
+| 7–11 s | 01 Événements | Nouvel événement (date, horaires, Table VIP, option Show bouteille) → « En ligne » |
+| 11–15 s | 02 Réservations | Plan de salle qui se remplit (14/16) + réservations de tables, bouteilles, paiement Apple Pay, avis |
+| 15–19 s | 03 Contrôle d'entrée | Réservations du soir cochées + scan du « Code d'entrée Noche » |
+| 19–23 s | 04 Statistiques | Revenus du club (30 jours), réservations confirmées, tables, bouteilles, avis |
+| 23–27 s | 05 Visibilité | Carte 3D avec bulles de prix, Noche Club en pin doré, les clients qui convergent |
 | 27–32 s | Fin | Logo + « Remplissez vos tables. *Gardez le contrôle.* » + « Devenir partenaire » + nocheparis.com |
 
 Les chiffres, noms (« La Nuit Dorée », Léa M.…) et données sont fictifs.

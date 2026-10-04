@@ -132,7 +132,7 @@
   .chk b { position: absolute; inset: -2px; border-radius: 50%; background: var(--green); display: grid; place-items: center; transform: scale(0); box-shadow: 0 0 20px rgba(103,197,141,0.6); }
 
   #qr { width: 440px; padding: 30px; }
-  .qrbox { width: 380px; height: 380px; border-radius: 22px; background: #fff; position: relative; overflow: hidden; padding: 26px; }
+  .qrbox { width: 380px; height: 380px; border-radius: 22px; background: #fff; border: 1px solid #ececec; position: relative; overflow: hidden; padding: 26px; }
   .scanline { position: absolute; left: 0; right: 0; height: 90px; background: linear-gradient(180deg, transparent, rgba(249,201,39,0.35) 85%, rgba(249,201,39,1)); }
   .qrok { position: absolute; inset: 0; background: linear-gradient(160deg, #6fd197, #3f9e66); color: #06210f; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; opacity: 0; }
 
@@ -152,6 +152,27 @@
 
   .cta { display: inline-flex; align-items: center; gap: 18px; padding: 28px 50px; border-radius: 999px; font-weight: 700; font-size: 34px; white-space: nowrap;
     background: var(--yellow); color: var(--ink); box-shadow: 0 20px 70px rgba(249,201,39,0.35), inset 0 1px 0 rgba(255,255,255,0.5); }
+  /* light app-style cells, matching the real Noche app UI (white cards, black pills) */
+  .cell.light { background: #fff; color: #111; border: 1px solid rgba(0,0,0,0.06); --muted: #8a8a8a; --line: #efefef;
+    box-shadow: 0 40px 90px rgba(0,0,0,0.7), 0 0 80px rgba(249,201,39,0.10); }
+  .cell.light.glowedge::before { background: linear-gradient(135deg, rgba(249,201,39,1), rgba(249,201,39,0) 38%); padding: 2px; inset: -2px; }
+  .light .field { background: #f6f6f6; border-color: #ededed; }
+  .light .field.focus { border-color: #111; box-shadow: 0 0 0 4px rgba(249,201,39,0.4); }
+  .light .caret { background: #111; }
+  .light .btn { background: #111; color: #fff; box-shadow: 0 16px 40px rgba(0,0,0,0.2); }
+  .light .btn .ok { color: #fff; background: #2f9a5c; }
+  .light .steps i { background: #e6e6e6; } .light .steps i.on { background: #111; }
+  .light.notif .av, .light .notif .av { background: #f3f3f3; color: #111; }
+  .light .room { background: #fafafa; border-color: #e3e3e3; }
+  .light .tbl { border-color: #d9d9d9; background: #fff; color: #9a9a9a; }
+  .light .tbl b { box-shadow: 0 0 18px rgba(249,201,39,0.55); }
+  .light .booth { background: #111; border-color: #111; color: var(--yellow); }
+  .light .grow .av { background: #f2f2f2; color: #111; }
+  .light .chk { border-color: #dcdcdc; }
+  .light .kpi-d, .light .kpi .d { color: #2f9a5c; }
+  .light .tagk.vip { background: var(--yellow); color: #111; } .light .tagk.tab { background: #f1f1f1; color: #111; }
+  .photo { background: url(night.jpg) center / cover; filter: grayscale(1) sepia(1) saturate(3.2) hue-rotate(6deg) brightness(0.9) contrast(1.15); }
+  .logo .lt:nth-child(2) { background: var(--yellow); }
 </style>
 </head>
 <body>
@@ -171,12 +192,12 @@
 
   <!-- ================= S1 HOOK ================= -->
   <div class="scene" id="s1">
-    <div class="a bgc" data-p="-660,-330,-500,-8"><div class="cell chip"><span class="ic" data-icon="crown" data-c="#f9c927"></span>Carré VIP</div></div>
+    <div class="a bgc" data-p="-660,-330,-500,-8"><div class="cell chip"><span class="ic" data-icon="crown" data-c="#f9c927"></span>Table VIP</div></div>
     <div class="a bgc" data-p="620,-310,-260,6"><div class="cell chip"><span class="ic" data-icon="cal" data-c="#f9c927"></span>Sam. 23:00</div></div>
     <div class="a bgc" data-p="-720,260,-150,5"><div class="cell chip"><span class="ic" data-icon="check" data-c="#67c58d" style="background:rgba(103,197,141,.15)"></span>Table 4 · réservée</div></div>
-    <div class="a bgc" data-p="690,300,-420,-6"><div class="cell chip"><span class="ic" data-icon="bottle" data-c="#f9c927"></span>+3 bouteilles</div></div>
+    <div class="a bgc" data-p="690,300,-420,-6"><div class="cell chip"><span class="ic" data-icon="bottle" data-c="#f9c927"></span>Show bouteille</div></div>
     <div class="a bgc" data-p="40,-440,-700,3"><div class="cell chip"><span class="ic" data-icon="qr" data-c="#f9c927"></span>QR validé</div></div>
-    <div class="a bgc" data-p="-80,430,-600,-4"><div class="cell chip"><span class="ic" data-icon="card" data-c="#f9c927"></span>Paiement reçu</div></div>
+    <div class="a bgc" data-p="-80,430,-600,-4"><div class="cell chip"><span class="ic" data-icon="card" data-c="#f9c927"></span>Apple Pay · payé</div></div>
     <div class="a" id="s1h" style="text-align:center">
       <div class="display headline"><span class="w">Ce</span> <span class="w">soir,</span> <span class="w">votre</span> <span class="w">club</span></div>
       <div class="display headline"><span class="w">affiche</span> <span class="w serif y">complet.</span></div>
@@ -186,31 +207,31 @@
   <!-- ================= S2 PUBLISH ================= -->
   <div class="scene" id="s2">
     <div class="a" id="s2h">
-      <div class="kicker">01 — Calendrier</div>
+      <div class="kicker">01 — Événements</div>
       <div class="display headline"><span class="w">Publiez</span></div>
       <div class="display headline"><span class="w">vos</span> <span class="w serif y">soirées.</span></div>
-      <div class="sub"><span class="w">Line-up, tables, prix.</span> <span class="w">En ligne.</span></div>
+      <div class="sub"><span class="w">Horaires, tables, bouteilles, options.</span> <span class="w">En ligne.</span></div>
     </div>
-    <div class="a" id="evcard-w"><div class="cell glowedge" id="evcard">
-      <div class="evhead"><div class="t">Nouvelle soirée</div><div class="steps"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div></div>
+    <div class="a" id="evcard-w"><div class="cell light glowedge" id="evcard">
+      <div class="evhead"><div><div class="mono" style="font-size:13px;letter-spacing:.2em;color:var(--muted)">ESPACE CLUB · NOCHE CLUB</div><div class="t" style="margin-top:4px">Nouvel événement</div></div><div class="steps"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div></div>
       <div class="poster">
+        <div class="photo" style="position:absolute;inset:0"></div><div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.8),rgba(0,0,0,.15) 70%)"></div>
         <svg width="620" height="230" style="position:absolute;inset:0" viewBox="0 0 620 230">
-          <g id="rays" fill="rgba(249,201,39,0.10)"></g>
-          <g id="eqbars" fill="rgba(249,201,39,0.85)"></g>
+                    <g id="eqbars" fill="rgba(249,201,39,0.85)"></g>
         </svg>
         <div class="tag pill" style="font-size:15px;padding:8px 14px;letter-spacing:.2em"><span class="dotlive"></span>HOUSE · AFRO</div>
-        <div class="ttl">La Nuit<br/><span class="y">Dorée.</span></div>
+        <div class="ttl" style="color:#fff">La Nuit<br/><span class="y">Dorée.</span></div>
       </div>
       <div class="field"><span class="k">Date</span><span class="v" data-full="Sam. 14 déc · 23:00"></span></div>
-      <div class="field"><span class="k">Line-up</span><span class="v" data-full="KAYA · Mila b2b Oso"></span></div>
-      <div class="field"><span class="k">Tables</span><span class="v" data-full="16 ouvertes"></span></div>
-      <div class="field"><span class="k">Minimum table</span><span class="v" data-full="300 €"></span></div>
-      <div class="btn" id="pubbtn">Publier la soirée<span class="ripple" id="ripple"></span><div class="ok"><span data-icon="check" data-c="#06210f" data-s="30"></span>En ligne</div></div>
+      <div class="field"><span class="k">Horaires</span><span class="v" data-full="23:00 – 05:00"></span></div>
+      <div class="field"><span class="k">Table VIP</span><span class="v" data-full="7 pers. · min. 150 €"></span></div>
+      <div class="field"><span class="k">Option</span><span class="v" data-full="Show bouteille · +150 €"></span></div>
+      <div class="btn" id="pubbtn">Publier l'événement<span class="ripple" id="ripple"></span><div class="ok"><span data-icon="check" data-c="#fff" data-s="30"></span>En ligne</div></div>
     </div></div>
     <div class="a" id="cursor"><svg viewBox="0 0 24 24" width="46" height="46"><path d="M4 2l15 9-6.5 1.6L16 20l-3 1.4-3.4-7.3L4 18z" fill="#fff" stroke="#080808" stroke-width="1.2" stroke-linejoin="round"/></svg></div>
-    <div class="a" id="s2toast"><div class="cell notif glowedge" style="width:580px">
+    <div class="a" id="s2toast"><div class="cell light notif glowedge" style="width:580px">
       <div class="av" style="background:var(--yellow)" data-icon="bell" data-c="#080808"></div>
-      <div class="tx"><div class="tt">Soirée en ligne</div><div class="ss">Visible par les clients Noche autour de vous</div></div>
+      <div class="tx"><div class="tt">Événement en ligne</div><div class="ss">Visible par les clients Noche autour de vous</div></div>
     </div></div>
   </div>
 
@@ -220,47 +241,47 @@
       <div class="kicker">02 — Réservations</div>
       <div class="display headline" style="font-size:112px"><span class="w">Remplissez</span> <span class="w">vos</span> <span class="w serif y">tables.</span></div>
     </div>
-    <div class="a" id="planw"><div class="cell glowedge" id="plan">
+    <div class="a" id="planw"><div class="cell light glowedge" id="plan">
       <div class="planhead">
-        <div><div class="mono" style="color:var(--muted);font-size:16px;letter-spacing:.2em">PLAN DE SALLE · SAMEDI</div>
+        <div><div class="mono" style="color:var(--muted);font-size:16px;letter-spacing:.2em">NOCHE CLUB · PLAN DE SALLE</div>
           <div style="display:flex;align-items:baseline;gap:14px;margin-top:10px"><div class="bignum" id="plann">5</div><div style="font-size:30px;color:var(--muted);font-weight:600">/ 16 tables</div></div></div>
-        <div class="badge" id="planbadge" style="background:rgba(249,201,39,0.14);color:var(--yellow);border:1px solid rgba(249,201,39,0.45)"><span class="dotlive"></span>Presque complet</div>
+        <div class="badge" id="planbadge" style="background:var(--yellow);color:#111"><span class="dotlive" style="background:#111;box-shadow:none"></span>Presque complet</div>
       </div>
       <div class="room" id="room"><div class="booth">DJ</div></div>
     </div></div>
-    <div class="a nt" data-p="-600,-150,60"><div class="cell notif glowedge"><div class="av" data-icon="crown" data-c="#f9c927"></div><div class="tx"><div class="tt">Carré VIP · Inès C.</div><div class="ss">8 invités · 3 bouteilles</div></div><div class="am">1 450 €</div></div></div>
-    <div class="a nt" data-p="600,-200,60"><div class="cell notif"><div class="av">YB</div><div class="tx"><div class="tt">Table 4 · Yanis B.</div><div class="ss">4 invités · 1 bouteille</div></div><div class="am">380 €</div></div></div>
-    <div class="a nt" data-p="-610,90,-60"><div class="cell notif"><div class="av" style="background:rgba(103,197,141,.15)" data-icon="card" data-c="#67c58d"></div><div class="tx"><div class="tt">Paiement sécurisé</div><div class="ss">Acompte reçu · Table 9</div></div><div class="am" style="color:var(--green)">+650 €</div></div></div>
-    <div class="a nt" data-p="610,60,20"><div class="cell notif"><div class="av">LM</div><div class="tx"><div class="tt">Table 12 · Léa M.</div><div class="ss">6 invités · 2 bouteilles</div></div><div class="am">720 €</div></div></div>
-    <div class="a nt" data-p="-590,330,40"><div class="cell notif"><div class="av" data-icon="star" data-c="#f9c927"></div><div class="tx"><div class="tt">Nouvel avis</div><div class="ss">« Service au top, on revient »</div></div><div class="am y">5,0</div></div></div>
-    <div class="a nt" data-p="600,330,-40"><div class="cell notif"><div class="av">TN</div><div class="tx"><div class="tt">Table 2 · Tom N.</div><div class="ss">5 invités · 2 bouteilles</div></div><div class="am">690 €</div></div></div>
+    <div class="a nt" data-p="-600,-150,60"><div class="cell light notif glowedge"><div class="av" data-icon="crown" data-c="#111" style="background:var(--yellow)"></div><div class="tx"><div class="tt">Table VIP · Inès C.</div><div class="ss">8 personnes · Show bouteille</div></div><div class="am">1 450 €</div></div></div>
+    <div class="a nt" data-p="600,-200,60"><div class="cell light notif"><div class="av">YB</div><div class="tx"><div class="tt">Table 4 · Yanis B.</div><div class="ss">4 personnes · 1 bouteille</div></div><div class="am">380 €</div></div></div>
+    <div class="a nt" data-p="-610,90,-60"><div class="cell light notif"><div class="av" style="background:rgba(47,154,92,.12)" data-icon="card" data-c="#2f9a5c"></div><div class="tx"><div class="tt">Paiement sécurisé</div><div class="ss">Apple Pay · Table 9</div></div><div class="am" style="color:#2f9a5c">+650 €</div></div></div>
+    <div class="a nt" data-p="610,60,20"><div class="cell light notif"><div class="av">LM</div><div class="tx"><div class="tt">Table 12 · Léa M.</div><div class="ss">6 personnes · 2 bouteilles</div></div><div class="am">720 €</div></div></div>
+    <div class="a nt" data-p="-590,330,40"><div class="cell light notif"><div class="av" data-icon="star" data-c="#111"></div><div class="tx"><div class="tt">Nouvel avis</div><div class="ss">« Service au top, on revient »</div></div><div class="am" style="color:#111">5,0 <span style="color:#f9c927">★</span></div></div></div>
+    <div class="a nt" data-p="600,330,-40"><div class="cell light notif"><div class="av">TN</div><div class="tx"><div class="tt">Table 2 · Tom N.</div><div class="ss">5 personnes · 2 bouteilles</div></div><div class="am">690 €</div></div></div>
   </div>
 
   <!-- ================= S4 DOOR ================= -->
   <div class="scene" id="s4">
     <div class="a" id="s4h" style="text-align:center">
-      <div class="kicker">03 — QR entrée</div>
+      <div class="kicker">03 — Contrôle d'entrée</div>
       <div class="display headline" style="font-size:104px"><span class="w">Fluidifiez</span> <span class="w serif y">l'entrée.</span></div>
     </div>
-    <div class="a" id="guestw"><div class="cell glowedge" id="guest">
+    <div class="a" id="guestw"><div class="cell light glowedge" id="guest">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding:0 6px">
         <div style="font-weight:700;font-size:26px">Réservations du soir</div>
-        <div class="mono" style="font-size:20px;color:var(--muted)">ARRIVÉS <span id="gcount" style="color:#fff">83</span></div>
+        <div class="mono" style="font-size:20px;color:var(--muted)">ARRIVÉS <span id="gcount" style="color:#111">83</span></div>
       </div>
       <div id="grows"></div>
     </div></div>
-    <div class="a" id="qrw"><div class="cell glowedge" id="qr">
+    <div class="a" id="qrw"><div class="cell light glowedge" id="qr">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-        <div style="font-weight:700;font-size:24px">Scan entrée</div>
-        <div class="badge" style="background:rgba(249,201,39,.12);color:var(--yellow);font-size:16px;padding:8px 14px"><span class="dotlive"></span>LIVE</div>
+        <div style="font-weight:700;font-size:24px">Code d'entrée Noche</div>
+        <div class="badge" style="background:#111;color:var(--yellow);font-size:16px;padding:8px 14px"><span class="dotlive"></span>SCAN</div>
       </div>
       <div class="qrbox">
         <svg id="qrsvg" width="328" height="328" viewBox="0 0 25 25" shape-rendering="crispEdges"></svg>
         <div class="scanline" id="scan"></div>
         <div class="qrok" id="qrok">
           <div style="width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,.3);display:grid;place-items:center" data-icon="check" data-c="#06210f" data-s="70"></div>
-          <div style="font-weight:800;font-size:30px">Réservation validée</div>
-          <div style="font-size:21px;opacity:.8;font-weight:600">Table 12 · 6 invités</div>
+          <div style="font-weight:800;font-size:30px">Entrée validée</div>
+          <div style="font-size:21px;opacity:.8;font-weight:600">Table 12 · 6 personnes</div>
         </div>
       </div>
     </div></div>
@@ -272,27 +293,27 @@
       <div class="kicker">04 — Statistiques</div>
       <div class="display headline" style="font-size:104px"><span class="w">Pilotez</span> <span class="w">chaque</span> <span class="w serif y">soirée.</span></div>
     </div>
-    <div class="a" id="revw"><div class="cell glowedge" id="rev">
+    <div class="a" id="revw"><div class="cell light glowedge" id="rev">
       <div style="display:flex;justify-content:space-between;align-items:center">
-        <div style="color:var(--muted);font-size:21px;font-weight:500">Chiffre d'affaires · ce soir</div>
-        <div class="badge" style="background:rgba(103,197,141,.12);color:var(--green);font-size:17px;padding:8px 14px"><span class="dotlive" style="background:var(--green);box-shadow:0 0 12px var(--green)"></span>EN DIRECT</div>
+        <div><div class="mono" style="font-size:13px;letter-spacing:.2em;color:var(--muted)">ESPACE CLUB · NOCHE CLUB</div><div style="font-size:22px;font-weight:700;margin-top:6px">Revenus du club</div></div>
+        <div class="badge" style="background:#f2f2f2;color:#111;font-size:17px;padding:8px 16px">30 jours ⌄</div>
       </div>
-      <div class="bignum" style="font-size:124px;margin-top:14px" id="revn">0 €</div>
+      <div class="bignum" style="font-size:124px;margin-top:14px" id="revn">0 €</div><div style="color:var(--muted);font-size:19px;margin-top:6px">Revenus nets après commission</div>
       <svg id="chart" width="784" height="230" viewBox="0 0 784 230" style="margin-top:18px;overflow:visible">
         <defs>
-          <linearGradient id="cf" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="rgba(249,201,39,0.45)"/><stop offset="1" stop-color="rgba(249,201,39,0)"/></linearGradient>
+          <linearGradient id="cf" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="rgba(249,201,39,0.75)"/><stop offset="1" stop-color="rgba(249,201,39,0)"/></linearGradient>
           <clipPath id="cclip"><rect id="cclipr" x="0" y="-20" width="0" height="270"/></clipPath>
         </defs>
-        <g stroke="rgba(255,255,255,0.07)" stroke-width="1"><line x1="0" x2="784" y1="40" y2="40"/><line x1="0" x2="784" y1="100" y2="100"/><line x1="0" x2="784" y1="160" y2="160"/><line x1="0" x2="784" y1="220" y2="220"/></g>
-        <g clip-path="url(#cclip)"><path id="carea" fill="url(#cf)"/><path id="cline" fill="none" stroke="#f9c927" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></g>
-        <circle id="cdot" r="9" fill="#fff" style="filter:drop-shadow(0 0 10px #f9c927)"/>
-        <g class="mono" fill="rgba(255,255,255,0.35)" font-size="14"><text x="0" y="250">22h</text><text x="190" y="250">23h</text><text x="385" y="250">00h</text><text x="580" y="250">01h</text><text x="750" y="250">02h</text></g>
+        <g stroke="rgba(0,0,0,0.07)" stroke-width="1"><line x1="0" x2="784" y1="40" y2="40"/><line x1="0" x2="784" y1="100" y2="100"/><line x1="0" x2="784" y1="160" y2="160"/><line x1="0" x2="784" y1="220" y2="220"/></g>
+        <g clip-path="url(#cclip)"><path id="carea" fill="url(#cf)"/><path id="cline" fill="none" stroke="#111" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <circle id="cdot" r="9" fill="#f9c927" stroke="#111" stroke-width="3" style="filter:drop-shadow(0 0 10px #f9c927)"/>
+        <g class="mono" fill="rgba(0,0,0,0.35)" font-size="14"><text x="0" y="250">3</text><text x="110" y="250">7</text><text x="220" y="250">11</text><text x="330" y="250">15</text><text x="440" y="250">19</text><text x="550" y="250">23</text><text x="660" y="250">27</text><text x="770" y="250">1</text></g>
       </svg>
     </div></div>
-    <div class="a kp" data-p="-650,250,140"><div class="cell kpi"><div class="l"><span data-icon="cal" data-c="#f9c927" data-s="22"></span>Réservations</div><div class="n" data-count="46">0</div><div class="d">+9 cette heure</div></div></div>
-    <div class="a kp" data-p="640,-150,180"><div class="cell kpi"><div class="l"><span data-icon="crown" data-c="#f9c927" data-s="22"></span>Tables</div><div class="n"><span data-count="14">0</span><span style="color:var(--muted);font-size:40px"> / 16</span></div><div class="d">2 restantes</div></div></div>
-    <div class="a kp" data-p="660,260,60"><div class="cell kpi"><div class="l"><span data-icon="bottle" data-c="#f9c927" data-s="22"></span>Panier moyen</div><div class="n"><span data-count="405">0</span> €</div><div class="d">+12 % vs. sam. dernier</div></div></div>
-    <div class="a kp" data-p="-640,-110,160"><div class="cell kpi" style="width:280px"><div class="l"><span data-icon="card" data-c="#f9c927" data-s="22"></span>Virements</div><div class="n" style="font-size:52px">À jour</div><div class="d">Tout est réconcilié</div></div></div>
+    <div class="a kp" data-p="-650,250,140"><div class="cell light kpi"><div class="l"><span data-icon="cal" data-c="#111" data-s="22"></span>Réservations</div><div class="n" data-count="96">0</div><div class="d">Réservations confirmées</div></div></div>
+    <div class="a kp" data-p="640,-150,180"><div class="cell light kpi"><div class="l"><span data-icon="crown" data-c="#111" data-s="22"></span>Tables ce soir</div><div class="n"><span data-count="14">0</span><span style="color:var(--muted);font-size:40px"> / 16</span></div><div class="d">2 restantes</div></div></div>
+    <div class="a kp" data-p="660,260,60"><div class="cell light kpi"><div class="l"><span data-icon="bottle" data-c="#111" data-s="22"></span>Bouteilles</div><div class="n" data-count="38">0</div><div class="d">Stock mis à jour</div></div></div>
+    <div class="a kp" data-p="-640,-110,160"><div class="cell light kpi" style="width:280px"><div class="l"><span data-icon="star" data-c="#111" data-s="22"></span>Avis clients</div><div class="n">4,9</div><div class="d" style="color:#d9a400">★★★★★</div></div></div>
   </div>
 
   <!-- ================= S6 MAP ================= -->
@@ -301,12 +322,13 @@
       <svg id="mapsvg" width="1900" height="1300" viewBox="0 0 1900 1300" style="position:absolute;inset:0"></svg>
       <div id="dots"></div>
       <div id="rings"></div>
+      <div id="prices"></div>
     </div></div>
     <div class="a" id="pin"><svg viewBox="0 0 90 120" width="90" height="120"><path d="M45 4C23 4 6 21 6 43c0 29 39 71 39 71s39-42 39-71C84 21 67 4 45 4z" fill="#f9c927" stroke="rgba(255,255,255,.7)" stroke-width="3"/><circle cx="45" cy="43" r="15" fill="#080808"/></svg></div>
-    <div class="a" id="label"><div class="cell glowedge" style="width:520px;padding:20px 24px;display:flex;gap:18px;align-items:center">
+    <div class="a" id="label"><div class="cell light glowedge" style="width:520px;padding:20px 24px;display:flex;gap:18px;align-items:center">
       <div style="width:64px;height:64px;border-radius:18px;background:var(--yellow);display:grid;place-items:center" data-icon="music" data-c="#080808" data-s="30"></div>
-      <div style="flex:1"><div style="font-weight:700;font-size:25px">Votre club</div><div style="color:var(--muted);font-size:18px;margin-top:4px;white-space:nowrap">Ouvert jusqu'à 6h · 1,2 km</div></div>
-      <div class="mono" style="font-size:18px;color:var(--yellow);text-align:right">+<span id="enroute">0</span><br/><span style="color:var(--muted);font-size:13px">VUES</span></div>
+      <div style="flex:1"><div style="font-weight:700;font-size:25px">Noche Club</div><div style="color:var(--muted);font-size:18px;margin-top:4px;white-space:nowrap">Table VIP dès 150 € · 1,2 km</div></div>
+      <div class="mono" style="font-size:18px;color:#111;text-align:right">+<span id="enroute">0</span><br/><span style="color:var(--muted);font-size:13px">VUES</span></div>
     </div></div>
     <div class="a" id="s6h" style="text-align:center">
       <div class="kicker">05 — Visibilité</div>
@@ -321,7 +343,8 @@
     <div class="a" id="s7logo"><div class="logo" data-logo style="width:620px;height:147px"></div></div>
     <div class="a" id="s7tag" style="text-align:center"><div class="display" style="font-size:78px;line-height:1;white-space:nowrap"><span class="w">Remplissez</span> <span class="w">vos</span> <span class="w">tables.</span> <span class="w serif y" style="font-size:1.12em">Gardez le contrôle.</span></div></div>
     <div class="a" id="s7cta"><div class="cta">Devenir partenaire <span id="ctaarrow" style="display:inline-block" data-icon="arrowup" data-c="#080808" data-s="32"></span></div></div>
-    <div class="a" id="s7feat"><div class="mono" style="font-size:19px;letter-spacing:.22em;color:var(--muted);white-space:nowrap;text-align:center">CALENDRIER · INVENTAIRE · STAFF · QR ENTRÉE · STATISTIQUES · VIREMENTS<br/><span style="color:var(--yellow);display:inline-block;margin-top:16px">NOCHEPARIS.COM</span></div></div>
+    <div class="a" id="s7feat"><div class="mono" style="font-size:19px;letter-spacing:.22em;color:var(--muted);white-space:nowrap;text-align:center">TABLES · BOUTEILLES · ÉVÉNEMENTS · STOCKS · RÉSERVATIONS · CONTRÔLE D'ENTRÉE</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-top:22px"><img src="noche-icon.png" width="54" height="54" style="border-radius:13px;box-shadow:0 6px 24px rgba(249,201,39,.35)"/><div style="text-align:left"><div style="font-weight:700;font-size:21px">Noche Paris</div><div class="mono" style="font-size:15px;letter-spacing:.16em;color:var(--yellow)">APP STORE · NOCHEPARIS.COM</div></div></div></div>
   </div>
 
   <div id="streak" style="position:absolute;left:0;top:0;width:2600px;height:240px;pointer-events:none;opacity:0;mix-blend-mode:screen">
@@ -440,7 +463,7 @@ const grainTiles = [];
 // procedural content
 // ------------------------------------------------------------
 { let s = ''; for (let i = 0; i < 24; i++) s += `<rect x="${340 + i * 11}" y="0" width="6" height="10" rx="3"/>`; $('#eqbars').innerHTML = s;
-  let r = ''; for (let i = 0; i < 7; i++) r += `<path d="M520,-20 L${300 + i * 60},240 L${330 + i * 60},240 Z"/>`; $('#rays').innerHTML = r; }
+  }
 const eqBars = $$('#eqbars rect');
 
 // floor plan: two VIP carrés + 14 round tables around the DJ booth
@@ -457,15 +480,15 @@ const TBL = $$('#room .tbl b');
 
 // tonight's reservations at the door
 const GUESTS = [
-  ['LM', 'Léa M.', 'Table 12 · 6 invités', 'TABLE', YEL],
-  ['IC', 'Inès C.', 'Carré VIP · 8 invités', 'VIP', YEL],
-  ['YB', 'Yanis B.', 'Table 4 · 4 invités', 'TABLE', PAP],
-  ['TN', 'Tom N.', 'Table 2 · 5 invités', 'TABLE', PAP],
-  ['SK', 'Sarah K.', 'Table 9 · 6 invités', 'TABLE', PAP],
-  ['AR', 'Adam R.', 'Carré VIP · 10 invités', 'VIP', YEL],
-  ['NB', 'Nora B.', 'Table 6 · 4 invités', 'TABLE', PAP],
+  ['LM', 'Léa M.', 'Table 12 · 6 personnes', 'TABLE'],
+  ['IC', 'Inès C.', 'Table VIP · 8 personnes', 'VIP'],
+  ['YB', 'Yanis B.', 'Table 4 · 4 personnes', 'TABLE'],
+  ['TN', 'Tom N.', 'Table 2 · 5 personnes', 'TABLE'],
+  ['SK', 'Sarah K.', 'Table 9 · 6 personnes', 'TABLE'],
+  ['AR', 'Adam R.', 'Table VIP · 10 personnes', 'VIP'],
+  ['NB', 'Nora B.', 'Table 6 · 4 personnes', 'TABLE'],
 ];
-$('#grows').innerHTML = GUESTS.map(g => `<div class="grow"><div class="av">${g[0]}</div><div class="nm">${g[1]}<small>${g[2]}</small></div><span class="tagk" style="background:rgba(${g[4]},.12);color:rgb(${g[4]})">${g[3]}</span><div class="chk"><b><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#06210f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">${ICONS.check}</svg></b></div></div>`).join('');
+$('#grows').innerHTML = GUESTS.map(g => `<div class="grow"><div class="av">${g[0]}</div><div class="nm">${g[1]}<small>${g[2]}</small></div><span class="tagk ${g[3] === 'VIP' ? 'vip' : 'tab'}">${g[3]}</span><div class="chk"><b><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#06210f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">${ICONS.check}</svg></b></div></div>`).join('');
 
 // QR
 { const R = rng(2024); let s = '<rect width="25" height="25" fill="#fff"/>';
@@ -522,6 +545,10 @@ const UDOTS = [];
   for (let i = 0; i < 4; i++) { const d = document.createElement('div'); d.className = 'ring'; rh.appendChild(d); }
 }
 const RINGS = $$('#rings .ring');
+// price bubbles on other venues, like the app's map view
+const PRICES = [[420, 360, '300€'], [1450, 330, '280€'], [300, 820, '200€'], [1560, 860, '150€'], [700, 1040, '250€'], [1250, 1080, '350€']];
+$('#prices').innerHTML = PRICES.map(([x, y, p]) => `<div class="price" style="position:absolute;left:${x}px;top:${y}px;transform:translate(-50%,-50%);padding:10px 18px;border-radius:999px;background:#fff;color:#111;font:700 26px Inter;box-shadow:0 8px 30px rgba(0,0,0,.5)">${p}</div>`).join('');
+const PRC = $$('#prices .price');
 
 // ============================================================
 //  render helpers
@@ -637,7 +664,6 @@ function S2(t) {
   $('#s2h .kicker').style.opacity = ep(t, 7.1, 0.5);
   tf($('#evcard-w'), flyIn(t, 7.15, { x: 420, y: 10 + bob(t, 0, 6), ry: lerp(-20, -10, lin(t, 7, 11)), rx: 4 }, { d: 0.9, from: { x: 300, y: 80, z: -900, rx: 25, ry: -30, blur: 24, o: 0 } }));
   eqBars.forEach((b, i) => { const h = 18 + 70 * Math.abs(Math.sin(t * 6 + i * 0.7) * Math.sin(t * 2.3 + i * 0.31)); b.setAttribute('y', 200 - h); b.setAttribute('height', h); });
-  $('#rays').setAttribute('transform', `rotate(${(Math.sin(t * 1.2) * 8).toFixed(2)} 520 -20)`);
   const FT = [[7.85, 8.25], [8.25, 8.85], [8.85, 9.1], [9.1, 9.35]];
   FIELDS.forEach((f, i) => {
     const v = f.querySelector('.v'), full = v.dataset.full; const k = lin(t, FT[i][0], FT[i][1]);
@@ -726,7 +752,7 @@ function S5(t) {
   [19.15, 19.3, 19.45].forEach((tt, i) => word(S5W[i], t, tt, { y: 50 }));
   tf($('#revw'), flyIn(t, 19.15, { x: -20, y: 80 + bob(t, 3, 5), rx: 2 }, { d: 0.9, from: { y: 120, z: -1000, rx: 30, blur: 24, o: 0 } }));
   const ck = E.outCubic(lin(t, 19.5, 21.9));
-  $('#revn').textContent = fr(18640 * ck) + ' €';
+  $('#revn').textContent = fr(22480 * ck) + ' €';
   const cx = 784 * E.inOut(lin(t, 19.5, 21.9));
   $('#cclipr').setAttribute('width', cx);
   $('#cdot').setAttribute('cx', cx); $('#cdot').setAttribute('cy', chartY(cx));
@@ -762,6 +788,7 @@ function S6(t) {
     const R = 20 + ph * 320;
     r.style.cssText = `width:${R * 2}px;height:${R * 2}px;left:${PIN.x - R}px;top:${PIN.y - R}px;opacity:${t > 23.6 ? (1 - ph) * 0.9 : 0}`;
   });
+  PRC.forEach((el, i) => { const k = ep(t, 23.5 + i * 0.1, 0.5, E.outBack); el.style.transform = `translate(-50%,-50%) scale(${k})`; el.style.opacity = clamp(k); });
   const drop = ep(t, 23.6, 0.6, E.outBack);
   const proj = projectOnPlane(mapP, PIN.x - 950, PIN.y - 650);
   tf($('#pin'), { x: proj.x, y: proj.y - 60 - 240 * (1 - drop), z: proj.z + 10, o: clamp(lin(t, 23.6, 23.75)), s: 1.15 });
