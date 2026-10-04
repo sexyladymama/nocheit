@@ -1,4 +1,4 @@
-// Procedural soundtrack for the Nocheit club promo — 120 BPM, 32 s, A minor house.
+// Procedural soundtrack for the Noche club promo — 120 BPM, 32 s, A minor house.
 // Every cue is aligned with the visual timeline in promo.html.
 import fs from 'fs';
 
