@@ -1,0 +1,876 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<title>Nocheit Clubs Promo</title>
+<link rel="stylesheet" href="fonts.css" />
+<style>
+  :root {
+    --bg0: #05030f;
+    --bg1: #120a2e;
+    --violet: #8b5cff;
+    --magenta: #ff3ea5;
+    --cyan: #3ee0ff;
+    --green: #4dffa6;
+    --amber: #ffc24d;
+    --text: #f4f0ff;
+    --muted: rgba(232, 224, 255, 0.58);
+    --line: rgba(255, 255, 255, 0.09);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--bg0); }
+  body { font-family: 'Inter', sans-serif; color: var(--text); -webkit-font-smoothing: antialiased; }
+
+  #stage {
+    position: absolute; inset: 0; overflow: hidden;
+    perspective: 1500px; perspective-origin: 50% 50%;
+    background: radial-gradient(120% 90% at 50% 40%, #1a0f40 0%, #0b0620 45%, #04020c 100%);
+  }
+  .bgblob { position: absolute; left: 0; top: 0; border-radius: 50%; will-change: transform; }
+  #vignette {
+    position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(110% 80% at 50% 50%, transparent 55%, rgba(0,0,0,0.75) 100%);
+  }
+  #grain { position: absolute; inset: -40px; opacity: 0.07; mix-blend-mode: overlay; pointer-events: none; }
+  #flash { position: absolute; inset: 0; background: radial-gradient(circle at 50% 50%, #fff 0%, #e8dcff 40%, #b49cff 100%); opacity: 0; pointer-events: none; }
+
+  .scene { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-style: preserve-3d; transform-origin: 960px 540px; visibility: hidden; }
+  .a { position: absolute; left: 0; top: 0; will-change: transform, opacity, filter; transform-style: preserve-3d; backface-visibility: hidden; }
+
+  /* ---------- glass cell ---------- */
+  .cell {
+    background: linear-gradient(180deg, rgba(36, 26, 74, 0.92), rgba(15, 10, 36, 0.94));
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 24px;
+    box-shadow: 0 40px 90px rgba(0,0,0,0.55), 0 0 0 1px rgba(139,92,255,0.12), inset 0 1px 0 rgba(255,255,255,0.10), 0 0 60px rgba(139,92,255,0.10);
+  }
+  .glowedge::before {
+    content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1px;
+    background: linear-gradient(135deg, rgba(255,62,165,0.7), rgba(139,92,255,0.25) 40%, rgba(62,224,255,0.6));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none;
+  }
+
+  .display { font-family: 'Unbounded', sans-serif; font-weight: 800; letter-spacing: -0.03em; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .grad { background: linear-gradient(90deg, var(--magenta), #c57bff 45%, var(--cyan)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .w { display: inline-block; will-change: transform, opacity, filter; }
+
+  .headline { font-size: 104px; line-height: 1.02; white-space: nowrap; text-shadow: 0 10px 50px rgba(139,92,255,0.35); }
+  .sub { font-size: 26px; color: var(--muted); font-weight: 500; margin-top: 26px; white-space: nowrap; }
+  .kicker { font-family: 'JetBrains Mono', monospace; font-size: 18px; letter-spacing: 0.28em; color: var(--cyan); text-transform: uppercase; margin-bottom: 22px; }
+
+  /* ---------- logo ---------- */
+  .icon {
+    width: 220px; height: 220px; border-radius: 58px; position: relative; overflow: hidden;
+    background: radial-gradient(120% 120% at 20% 10%, #ff6cc0 0%, #b04dff 40%, #5a2dff 70%, #2a8fff 100%);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.25) inset, 0 30px 80px rgba(176,77,255,0.55), 0 0 140px rgba(255,62,165,0.35);
+  }
+  .icon svg { position: absolute; inset: 0; }
+  .wordmark { font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: 150px; letter-spacing: -0.05em; white-space: nowrap; line-height: 1; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 14px; padding: 14px 26px; border-radius: 999px;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.16);
+    font-family: 'JetBrains Mono', monospace; font-size: 20px; letter-spacing: 0.3em; color: #e9e2ff; white-space: nowrap;
+  }
+  .dotlive { width: 10px; height: 10px; border-radius: 50%; background: var(--magenta); box-shadow: 0 0 14px var(--magenta); }
+
+  /* ---------- chips ---------- */
+  .chip { padding: 16px 24px; border-radius: 18px; font-size: 24px; font-weight: 600; white-space: nowrap; display: flex; align-items: center; gap: 12px; }
+  .chip .ic { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; }
+
+  /* ---------- event card ---------- */
+  #evcard { width: 620px; padding: 22px; }
+  .evhead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+  .evhead .t { font-weight: 700; font-size: 22px; }
+  .steps { display: flex; gap: 8px; }
+  .steps i { width: 28px; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.15); display: block; }
+  .steps i.on { background: linear-gradient(90deg, var(--magenta), var(--violet)); }
+  .poster { height: 230px; border-radius: 18px; position: relative; overflow: hidden; margin-bottom: 18px;
+    background: radial-gradient(80% 120% at 85% 0%, #ff3ea5 0%, transparent 55%), radial-gradient(90% 120% at 0% 100%, #3ee0ff 0%, transparent 55%), linear-gradient(135deg, #2a0f5c, #12072e); }
+  .poster .ttl { position: absolute; left: 26px; bottom: 22px; font-family: 'Unbounded'; font-weight: 800; font-size: 54px; letter-spacing: -0.03em; line-height: 0.95; }
+  .poster .tag { position: absolute; left: 26px; top: 22px; }
+  .field { display: flex; justify-content: space-between; align-items: center; padding: 16px 18px; border-radius: 14px; background: rgba(255,255,255,0.04); border: 1px solid var(--line); margin-bottom: 10px; font-size: 21px; }
+  .field .k { color: var(--muted); font-weight: 500; }
+  .field .v { font-weight: 600; white-space: nowrap; }
+  .field.focus { border-color: rgba(139,92,255,0.7); box-shadow: 0 0 0 4px rgba(139,92,255,0.15); }
+  .caret { display: inline-block; width: 2px; height: 22px; background: var(--cyan); margin-left: 3px; vertical-align: -3px; }
+  .btn { margin-top: 16px; height: 72px; border-radius: 18px; display: grid; place-items: center; font-weight: 700; font-size: 24px; position: relative; overflow: hidden;
+    background: linear-gradient(90deg, var(--magenta), var(--violet)); box-shadow: 0 16px 40px rgba(255,62,165,0.35); }
+  .btn .ok { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 12px; background: linear-gradient(90deg, #19c37d, #3ee0a0); opacity: 0; }
+  .ripple { position: absolute; width: 60px; height: 60px; border-radius: 50%; background: rgba(255,255,255,0.55); left: 50%; top: 50%; transform: translate(-50%,-50%) scale(0); }
+  #cursor { width: 46px; height: 46px; }
+
+  /* ---------- notification cell ---------- */
+  .notif { width: 500px; padding: 20px 22px; display: flex; align-items: center; gap: 18px; }
+  .notif .av { width: 58px; height: 58px; border-radius: 16px; display: grid; place-items: center; flex: none; font-weight: 700; font-size: 22px; }
+  .notif .tx { flex: 1; min-width: 0; }
+  .notif .tt { font-weight: 700; font-size: 22px; white-space: nowrap; }
+  .notif .ss { color: var(--muted); font-size: 18px; margin-top: 4px; white-space: nowrap; }
+  .notif .am { font-weight: 700; font-size: 22px; white-space: nowrap; }
+
+  /* ---------- capacity card ---------- */
+  #capcard { width: 640px; padding: 34px; }
+  .caprow { display: flex; justify-content: space-between; align-items: baseline; }
+  .bignum { font-family: 'Unbounded'; font-weight: 800; font-size: 120px; letter-spacing: -0.04em; line-height: 1; }
+  .bar { height: 22px; border-radius: 11px; background: rgba(255,255,255,0.08); margin-top: 28px; overflow: hidden; position: relative; }
+  .bar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 11px; background: linear-gradient(90deg, var(--violet), var(--magenta), #ff8a5c); box-shadow: 0 0 24px rgba(255,62,165,0.6); }
+  .badge { display: inline-flex; align-items: center; gap: 10px; padding: 10px 18px; border-radius: 999px; font-weight: 700; font-size: 20px; }
+
+  /* ---------- guest list ---------- */
+  #guest { width: 640px; padding: 28px; }
+  .grow { display: flex; align-items: center; gap: 16px; padding: 14px 12px; border-radius: 14px; border-bottom: 1px solid var(--line); }
+  .grow .av { width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 18px; flex: none; }
+  .grow .nm { flex: 1; font-weight: 600; font-size: 22px; }
+  .grow .nm small { display: block; color: var(--muted); font-weight: 500; font-size: 16px; margin-top: 2px; }
+  .tagk { font-family: 'JetBrains Mono'; font-size: 15px; padding: 6px 12px; border-radius: 8px; letter-spacing: 0.08em; }
+  .chk { width: 40px; height: 40px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); position: relative; flex: none; }
+  .chk b { position: absolute; inset: -2px; border-radius: 50%; background: var(--green); display: grid; place-items: center; transform: scale(0); box-shadow: 0 0 20px rgba(77,255,166,0.6); }
+
+  #qr { width: 440px; padding: 30px; }
+  .qrbox { width: 380px; height: 380px; border-radius: 22px; background: #fff; position: relative; overflow: hidden; padding: 26px; }
+  .scanline { position: absolute; left: 0; right: 0; height: 90px; background: linear-gradient(180deg, transparent, rgba(62,224,255,0.35) 85%, rgba(62,224,255,0.95)); }
+  .qrok { position: absolute; inset: 0; background: linear-gradient(160deg, #18c27c, #0f8f5e); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; opacity: 0; }
+  .corner { position: absolute; width: 60px; height: 60px; border: 5px solid var(--cyan); }
+
+  /* ---------- dashboard ---------- */
+  #rev { width: 860px; padding: 34px 38px; }
+  .kpi { width: 300px; padding: 24px 26px; }
+  .kpi .l { color: var(--muted); font-size: 18px; font-weight: 500; display: flex; align-items: center; gap: 10px; }
+  .kpi .n { font-family: 'Unbounded'; font-weight: 700; font-size: 52px; letter-spacing: -0.03em; margin-top: 10px; }
+  .kpi .d { font-size: 17px; font-weight: 600; color: var(--green); margin-top: 6px; }
+
+  /* ---------- map ---------- */
+  #map { width: 1900px; height: 1300px; border-radius: 40px; overflow: hidden;
+    background: radial-gradient(60% 60% at 50% 50%, #1c1145 0%, #0d0826 70%, #07041a 100%);
+    box-shadow: 0 0 0 1px rgba(139,92,255,0.25), 0 0 200px rgba(139,92,255,0.25); }
+  .udot { position: absolute; width: 14px; height: 14px; border-radius: 50%; margin: -7px 0 0 -7px; background: var(--cyan); box-shadow: 0 0 16px var(--cyan); }
+  .ring { position: absolute; border-radius: 50%; border: 3px solid var(--magenta); }
+  #pin { width: 90px; height: 120px; }
+
+  .cta { display: inline-flex; align-items: center; gap: 18px; padding: 28px 46px; border-radius: 999px; font-weight: 700; font-size: 34px; white-space: nowrap;
+    background: linear-gradient(90deg, var(--magenta), var(--violet) 55%, #4b7bff); box-shadow: 0 20px 70px rgba(255,62,165,0.45), inset 0 1px 0 rgba(255,255,255,0.35); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="bg"></div>
+  <svg width="0" height="0" style="position:absolute">
+    <defs id="filters"></defs>
+  </svg>
+
+  <!-- ================= S0 INTRO ================= -->
+  <div class="scene" id="s0">
+    <div class="a" id="s0glow" style="width:900px;height:900px;border-radius:50%;background:radial-gradient(circle, rgba(200,150,255,0.55) 0%, rgba(139,92,255,0.18) 30%, transparent 65%);"></div>
+    <div class="a" id="s0dot" style="width:34px;height:34px;border-radius:50%;background:#fff;box-shadow:0 0 30px #fff,0 0 80px #c9a6ff,0 0 160px #8b5cff;"></div>
+    <div class="a" id="s0ring" style="width:300px;height:300px;border-radius:50%;border:3px solid rgba(220,190,255,0.9);box-shadow:0 0 40px rgba(180,120,255,0.8), inset 0 0 40px rgba(180,120,255,0.6);"></div>
+    <div class="a" id="s0icon"><div class="icon" data-logo></div></div>
+    <div class="a" id="s0word"><div class="wordmark" data-split="nocheit"></div></div>
+    <div class="a" id="s0pill"><div class="pill"><span class="dotlive"></span>POUR LES CLUBS</div></div>
+  </div>
+
+  <!-- ================= S1 HOOK ================= -->
+  <div class="scene" id="s1">
+    <div class="a bgc" data-p="-640,-330,-500,-8"><div class="cell chip"><span class="ic" style="background:rgba(77,255,166,.15)" data-icon="check" data-c="#4dffa6"></span>Complet</div></div>
+    <div class="a bgc" data-p="610,-300,-260,6"><div class="cell chip"><span class="ic" style="background:rgba(255,62,165,.15)" data-icon="cal" data-c="#ff3ea5"></span>Sam. 23:00</div></div>
+    <div class="a bgc" data-p="-700,250,-150,5"><div class="cell chip"><span class="ic" style="background:rgba(255,194,77,.15)" data-icon="crown" data-c="#ffc24d"></span>Table VIP</div></div>
+    <div class="a bgc" data-p="680,290,-420,-6"><div class="cell chip"><span class="ic" style="background:rgba(62,224,255,.15)" data-icon="ticket" data-c="#3ee0ff"></span>+124 billets</div></div>
+    <div class="a bgc" data-p="40,-430,-700,3"><div class="cell chip"><span class="ic" style="background:rgba(139,92,255,.2)" data-icon="user" data-c="#b896ff"></span>Guest list</div></div>
+    <div class="a bgc" data-p="-80,420,-600,-4"><div class="cell chip"><span class="ic" style="background:rgba(255,62,165,.15)" data-icon="music" data-c="#ff3ea5"></span>Line-up confirmé</div></div>
+    <div class="a" id="s1h" style="text-align:center">
+      <div class="display headline"><span class="w">Ton</span> <span class="w">club</span> <span class="w">mérite</span></div>
+      <div class="display headline"><span class="w">une</span> <span class="w grad">salle</span> <span class="w grad">pleine.</span></div>
+    </div>
+  </div>
+
+  <!-- ================= S2 PUBLISH ================= -->
+  <div class="scene" id="s2">
+    <div class="a" id="s2h">
+      <div class="kicker">01 — Publier</div>
+      <div class="display headline"><span class="w">Publie</span></div>
+      <div class="display headline"><span class="w">ta</span> <span class="w grad">soirée.</span></div>
+      <div class="sub"><span class="w">Line-up, prix, jauge.</span> <span class="w">En ligne.</span></div>
+    </div>
+    <div class="a" id="evcard-w"><div class="cell glowedge" id="evcard">
+      <div class="evhead"><div class="t">Nouvelle soirée</div><div class="steps"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div></div>
+      <div class="poster">
+        <svg width="620" height="230" style="position:absolute;inset:0" viewBox="0 0 620 230">
+          <g fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="2">
+            <circle cx="470" cy="80" r="60"/><circle cx="470" cy="80" r="100"/><circle cx="470" cy="80" r="140"/><circle cx="470" cy="80" r="180"/>
+          </g>
+          <g id="eqbars" fill="rgba(255,255,255,0.75)"></g>
+        </svg>
+        <div class="tag pill" style="font-size:15px;padding:8px 14px;letter-spacing:.2em"><span class="dotlive"></span>TECHNO · HOUSE</div>
+        <div class="ttl">NEON<br/>RIOT</div>
+      </div>
+      <div class="field" data-f="0"><span class="k">Date</span><span class="v" data-full="Sam. 14 déc · 23:00"></span></div>
+      <div class="field" data-f="1"><span class="k">Line-up</span><span class="v" data-full="KAYA · Mila b2b Oso"></span></div>
+      <div class="field" data-f="2"><span class="k">Prix</span><span class="v" data-full="15 €"></span></div>
+      <div class="field" data-f="3"><span class="k">Jauge</span><span class="v" data-full="450 personnes"></span></div>
+      <div class="btn" id="pubbtn">Publier la soirée<span class="ripple" id="ripple"></span><div class="ok"><span data-icon="check" data-c="#fff" data-s="30"></span>En ligne</div></div>
+    </div></div>
+    <div class="a" id="cursor"><svg viewBox="0 0 24 24" width="46" height="46"><path d="M4 2l15 9-6.5 1.6L16 20l-3 1.4-3.4-7.3L4 18z" fill="#fff" stroke="#120a2e" stroke-width="1.2" stroke-linejoin="round"/></svg></div>
+    <div class="a" id="s2toast"><div class="cell notif glowedge" style="width:560px">
+      <div class="av" style="background:linear-gradient(135deg,#ff3ea5,#8b5cff)" data-icon="bell" data-c="#fff"></div>
+      <div class="tx"><div class="tt">Soirée publiée</div><div class="ss">12 400 noctambules notifiés autour de toi</div></div>
+    </div></div>
+  </div>
+
+  <!-- ================= S3 FILL ================= -->
+  <div class="scene" id="s3">
+    <div class="a" id="s3h" style="text-align:center">
+      <div class="kicker">02 — Vendre</div>
+      <div class="display headline" style="font-size:96px"><span class="w">Remplis</span><span class="w grad">-la.</span></div>
+    </div>
+    <div class="a" id="capw"><div class="cell glowedge" id="capcard">
+      <div class="caprow"><div style="font-weight:700;font-size:24px">NEON RIOT</div><div class="mono" style="color:var(--muted);font-size:18px">SAM. 23:00</div></div>
+      <div class="caprow" style="margin-top:26px"><div class="bignum" id="capn">0</div><div style="font-size:30px;color:var(--muted);font-weight:600">/ 450</div></div>
+      <div style="color:var(--muted);font-size:20px;margin-top:8px;font-weight:500">billets vendus</div>
+      <div class="bar"><i id="capbar"></i></div>
+      <div class="caprow" style="margin-top:22px;align-items:center">
+        <div class="mono" style="font-size:22px" id="cappct">0 %</div>
+        <div class="badge" id="capbadge" style="background:rgba(255,62,165,0.16);color:#ff7cc4;border:1px solid rgba(255,62,165,0.4)"><span class="dotlive"></span>Presque complet</div>
+      </div>
+    </div></div>
+    <div class="a nt" data-p="-610,-150,80"><div class="cell notif"><div class="av" style="background:rgba(62,224,255,.16);color:#3ee0ff">LM</div><div class="tx"><div class="tt">Léa M.</div><div class="ss">2 billets · Early</div></div><div class="am">30 €</div></div></div>
+    <div class="a nt" data-p="620,-200,120"><div class="cell notif glowedge"><div class="av" style="background:rgba(255,194,77,.16)" data-icon="crown" data-c="#ffc24d"></div><div class="tx"><div class="tt">Table VIP</div><div class="ss">6 pers. · bouteille incluse</div></div><div class="am">480 €</div></div></div>
+    <div class="a nt" data-p="-640,90,-60"><div class="cell notif"><div class="av" style="background:rgba(255,62,165,.16);color:#ff6cc0">YB</div><div class="tx"><div class="tt">Yanis B.</div><div class="ss">4 billets · Regular</div></div><div class="am">60 €</div></div></div>
+    <div class="a nt" data-p="650,60,40"><div class="cell notif"><div class="av" style="background:rgba(77,255,166,.14)" data-icon="trend" data-c="#4dffa6"></div><div class="tx"><div class="tt">+38 billets</div><div class="ss">dans la dernière heure</div></div><div class="am" style="color:#4dffa6">+570 €</div></div></div>
+    <div class="a nt" data-p="-580,320,140"><div class="cell notif"><div class="av" style="background:rgba(139,92,255,.2);color:#c3a6ff">SK</div><div class="tx"><div class="tt">Sarah K.</div><div class="ss">ajoutée à la guest list</div></div><div class="am mono" style="font-size:16px;color:var(--muted)">GUEST</div></div></div>
+    <div class="a nt" data-p="600,320,-40"><div class="cell notif"><div class="av" style="background:rgba(62,224,255,.16);color:#3ee0ff">TN</div><div class="tx"><div class="tt">Tom N.</div><div class="ss">3 billets · Regular</div></div><div class="am">45 €</div></div></div>
+  </div>
+
+  <!-- ================= S4 DOOR ================= -->
+  <div class="scene" id="s4">
+    <div class="a" id="s4h">
+      <div class="kicker">03 — Accueillir</div>
+      <div class="display headline" style="font-size:88px"><span class="w">Gère</span> <span class="w">ta</span> <span class="w grad">porte.</span></div>
+    </div>
+    <div class="a" id="guestw"><div class="cell glowedge" id="guest">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding:0 6px">
+        <div style="font-weight:700;font-size:26px">Guest list</div>
+        <div class="mono" style="font-size:20px;color:var(--muted)">ENTRÉES <span id="gcount" style="color:#fff">283</span></div>
+      </div>
+      <div id="grows"></div>
+    </div></div>
+    <div class="a" id="qrw"><div class="cell glowedge" id="qr">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <div style="font-weight:700;font-size:24px">Scan entrée</div>
+        <div class="badge" style="background:rgba(62,224,255,.12);color:#3ee0ff;font-size:16px;padding:8px 14px"><span class="dotlive" style="background:#3ee0ff;box-shadow:0 0 12px #3ee0ff"></span>LIVE</div>
+      </div>
+      <div class="qrbox">
+        <svg id="qrsvg" width="328" height="328" viewBox="0 0 25 25" shape-rendering="crispEdges"></svg>
+        <div class="scanline" id="scan"></div>
+        <div class="qrok" id="qrok">
+          <div style="width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,.2);display:grid;place-items:center" data-icon="check" data-c="#fff" data-s="70"></div>
+          <div style="font-weight:800;font-size:32px">Entrée validée</div>
+          <div style="font-size:21px;opacity:.85;font-weight:500">Léa M. · 2 personnes</div>
+        </div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- ================= S5 DASHBOARD ================= -->
+  <div class="scene" id="s5">
+    <div class="a" id="s5h">
+      <div class="kicker">04 — Piloter</div>
+      <div class="display headline" style="font-size:88px"><span class="w">Pilote</span> <span class="w grad">en direct.</span></div>
+    </div>
+    <div class="a" id="revw"><div class="cell glowedge" id="rev">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="color:var(--muted);font-size:21px;font-weight:500">Recettes de la soirée</div>
+        <div class="badge" style="background:rgba(77,255,166,.12);color:#4dffa6;font-size:17px;padding:8px 14px"><span class="dotlive" style="background:#4dffa6;box-shadow:0 0 12px #4dffa6"></span>EN DIRECT</div>
+      </div>
+      <div class="bignum" style="font-size:110px;margin-top:12px" id="revn">0 €</div>
+      <svg id="chart" width="784" height="230" viewBox="0 0 784 230" style="margin-top:18px;overflow:visible">
+        <defs>
+          <linearGradient id="cg" x1="0" x2="1"><stop offset="0" stop-color="#8b5cff"/><stop offset=".6" stop-color="#ff3ea5"/><stop offset="1" stop-color="#3ee0ff"/></linearGradient>
+          <linearGradient id="cf" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="rgba(255,62,165,0.35)"/><stop offset="1" stop-color="rgba(139,92,255,0)"/></linearGradient>
+          <clipPath id="cclip"><rect id="cclipr" x="0" y="-20" width="0" height="270"/></clipPath>
+        </defs>
+        <g stroke="rgba(255,255,255,0.07)" stroke-width="1"><line x1="0" x2="784" y1="40" y2="40"/><line x1="0" x2="784" y1="100" y2="100"/><line x1="0" x2="784" y1="160" y2="160"/><line x1="0" x2="784" y1="220" y2="220"/></g>
+        <g clip-path="url(#cclip)"><path id="carea" fill="url(#cf)"/><path id="cline" fill="none" stroke="url(#cg)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <circle id="cdot" r="9" fill="#fff" style="filter:drop-shadow(0 0 10px #3ee0ff)"/>
+        <g class="mono" fill="rgba(255,255,255,0.35)" font-size="14"><text x="0" y="250">22h</text><text x="190" y="250">23h</text><text x="385" y="250">00h</text><text x="580" y="250">01h</text><text x="750" y="250">02h</text></g>
+      </svg>
+    </div></div>
+    <div class="a kp" data-p="-650,250,140"><div class="cell kpi"><div class="l"><span data-icon="user" data-c="#3ee0ff" data-s="22"></span>Entrées</div><div class="n" data-count="412">0</div><div class="d">+64 cette heure</div></div></div>
+    <div class="a kp" data-p="640,-170,180"><div class="cell kpi"><div class="l"><span data-icon="crown" data-c="#ffc24d" data-s="22"></span>Tables</div><div class="n"><span data-count="14">0</span><span style="color:var(--muted);font-size:34px"> / 16</span></div><div class="d">2 restantes</div></div></div>
+    <div class="a kp" data-p="660,250,60"><div class="cell kpi"><div class="l"><span data-icon="ticket" data-c="#ff6cc0" data-s="22"></span>Panier moyen</div><div class="n"><span data-count="31">0</span> €</div><div class="d">+12 % vs. sam. dernier</div></div></div>
+    <div class="a kp" data-p="-690,-110,240"><div class="cell kpi" style="width:260px"><div class="l"><span data-icon="star" data-c="#ffc24d" data-s="22"></span>Note</div><div class="n">4,8</div><div class="d" style="color:var(--amber)">★★★★★</div></div></div>
+  </div>
+
+  <!-- ================= S6 MAP ================= -->
+  <div class="scene" id="s6">
+    <div class="a" id="mapw"><div id="map">
+      <svg id="mapsvg" width="1900" height="1300" viewBox="0 0 1900 1300" style="position:absolute;inset:0"></svg>
+      <div id="dots"></div>
+      <div id="rings"></div>
+    </div></div>
+    <div class="a" id="pin"><svg viewBox="0 0 90 120" width="90" height="120"><defs><linearGradient id="pg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff6cc0"/><stop offset="1" stop-color="#8b5cff"/></linearGradient></defs><path d="M45 4C23 4 6 21 6 43c0 29 39 71 39 71s39-42 39-71C84 21 67 4 45 4z" fill="url(#pg)" stroke="rgba(255,255,255,.6)" stroke-width="3"/><circle cx="45" cy="43" r="15" fill="#fff"/></svg></div>
+    <div class="a" id="label"><div class="cell glowedge" style="width:520px;padding:20px 24px;display:flex;gap:18px;align-items:center">
+      <div style="width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,#ff3ea5,#8b5cff);display:grid;place-items:center" data-icon="music" data-c="#fff" data-s="30"></div>
+      <div style="flex:1"><div style="font-weight:700;font-size:25px">Le Velvet</div><div style="color:var(--muted);font-size:18px;margin-top:4px;white-space:nowrap">Ouvert jusqu'à 6h · 1,2 km</div></div>
+      <div class="mono" style="font-size:18px;color:#4dffa6;text-align:right">+<span id="enroute">0</span><br/><span style="color:var(--muted);font-size:13px">EN ROUTE</span></div>
+    </div></div>
+    <div class="a" id="s6h" style="text-align:center">
+      <div class="kicker">05 — Être vu</div>
+      <div class="display headline" style="font-size:80px"><span class="w">Sois</span> <span class="w">là</span> <span class="w">où</span> <span class="w">la</span> <span class="w grad">nuit</span> <span class="w grad">commence.</span></div>
+    </div>
+  </div>
+
+  <!-- ================= S7 END ================= -->
+  <div class="scene" id="s7">
+    <div class="a" id="s7glow" style="width:1400px;height:1400px;border-radius:50%;background:radial-gradient(circle, rgba(176,77,255,0.35) 0%, rgba(255,62,165,0.10) 35%, transparent 65%);"></div>
+    <div class="a" id="s7ring" style="width:300px;height:300px;border-radius:50%;border:3px solid rgba(255,200,240,0.9);box-shadow:0 0 50px rgba(255,62,165,0.8)"></div>
+    <div class="a" id="s7icon"><div class="icon" data-logo style="width:170px;height:170px;border-radius:46px"></div></div>
+    <div class="a" id="s7word"><div class="wordmark" data-split="nocheit" style="font-size:132px;position:relative"></div></div>
+    <div class="a" id="s7tag"><div class="display" style="font-size:64px;font-weight:700;white-space:nowrap"><span class="w">Inscris</span> <span class="w">ton</span> <span class="w grad">club.</span></div></div>
+    <div class="a" id="s7cta"><div class="cta">Inscrire mon club <span id="ctaarrow" style="display:inline-block" data-icon="arrow" data-c="#fff" data-s="34"></span></div></div>
+    <div class="a" id="s7feat"><div class="mono" style="font-size:20px;letter-spacing:.22em;color:var(--muted);white-space:nowrap">BILLETTERIE · GUEST LIST · TABLES · STATS EN DIRECT</div></div>
+  </div>
+
+  <div id="streak" style="position:absolute;left:0;top:0;width:2600px;height:240px;pointer-events:none;opacity:0;mix-blend-mode:screen">
+    <div style="position:absolute;left:0;right:0;top:50%;height:4px;margin-top:-2px;background:linear-gradient(90deg,transparent,rgba(62,224,255,.9) 30%,#fff 50%,rgba(255,62,165,.9) 70%,transparent);box-shadow:0 0 30px #fff,0 0 80px rgba(139,92,255,.9)"></div>
+    <div style="position:absolute;left:15%;right:15%;top:0;bottom:0;border-radius:50%;background:radial-gradient(50% 50% at 50% 50%,rgba(200,170,255,.45),transparent 70%)"></div>
+  </div>
+  <div id="vignette"></div>
+  <canvas id="grain" width="1000" height="580"></canvas>
+  <div id="flash"></div>
+</div>
+
+<script>
+// ============================================================
+//  utilities
+// ============================================================
+const W = 1920, H = 1080;
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const lerp = (a, b, k) => a + (b - a) * k;
+const lin = (t, a, b) => clamp((t - a) / (b - a));
+const E = {
+  outExpo: k => (k >= 1 ? 1 : 1 - Math.pow(2, -10 * k)),
+  inExpo: k => (k <= 0 ? 0 : Math.pow(2, 10 * k - 10)),
+  outCubic: k => 1 - Math.pow(1 - k, 3),
+  inCubic: k => k * k * k,
+  inOut: k => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2),
+  outBack: k => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(k - 1, 3) + c1 * Math.pow(k - 1, 2); },
+  outQuint: k => 1 - Math.pow(1 - k, 5),
+};
+const ep = (t, a, d, e = E.outExpo) => e(lin(t, a, a + d));
+function rng(seed) { let s = seed >>> 0; return () => { s = (s + 0x6D2B79F5) >>> 0; let x = s; x = Math.imul(x ^ (x >>> 15), x | 1); x ^= x + Math.imul(x ^ (x >>> 7), x | 61); return ((x ^ (x >>> 14)) >>> 0) / 4294967296; }; }
+const fr = n => Math.round(n).toLocaleString('fr-FR').replace(/\s/g, ' ');
+const BEAT = 0.5;
+
+// ------------------------------------------------------------
+// icons
+// ------------------------------------------------------------
+const ICONS = {
+  check: '<path d="M5 12.5l4.5 4.5L19 7.5" stroke-width="2.6"/>',
+  cal: '<rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+  crown: '<path d="M4 17l-1-9 5 4 4-7 4 7 5-4-1 9z"/><path d="M5 20h14"/>',
+  ticket: '<path d="M4 7h16v3a2 2 0 000 4v3H4v-3a2 2 0 000-4z"/><path d="M14 7v10" stroke-dasharray="2 2"/>',
+  user: '<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4.5 4.5-6 8-6s7 1.5 8 6"/>',
+  music: '<path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/>',
+  bell: '<path d="M6 16V11a6 6 0 0112 0v5l2 2H4z"/><path d="M10 21h4"/>',
+  trend: '<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>',
+  star: '<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>',
+  arrow: '<path d="M4 12h15M13 6l6 6-6 6" stroke-width="2.6"/>',
+};
+$$('[data-icon]').forEach(el => {
+  const s = el.dataset.s || 28, c = el.dataset.c || '#fff';
+  el.insertAdjacentHTML('afterbegin', `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block">${ICONS[el.dataset.icon]}</svg>`);
+});
+// logo mark: crescent moon + spark, an "N" made of night
+$$('[data-logo]').forEach(el => {
+  el.innerHTML = `<svg viewBox="0 0 220 220" width="100%" height="100%">
+    <defs><mask id="m${Math.random().toString(36).slice(2,6)}"></mask>
+      <radialGradient id="lg" cx="30%" cy="20%" r="80%"><stop offset="0" stop-color="#fff" stop-opacity=".45"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>
+    <rect width="220" height="220" fill="url(#lg)"/>
+    <path d="M128 46a68 68 0 1 0 50 104A56 56 0 0 1 128 46z" fill="#fff"/>
+    <path d="M150 62l5 14 14 5-14 5-5 14-5-14-14-5 14-5z" fill="#fff"/>
+    <circle cx="176" cy="104" r="5" fill="#fff" opacity=".85"/>
+  </svg><div class="shine" style="position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.55) 50%,transparent 65%);transform:translateX(-120%)"></div>`;
+});
+// split wordmarks into letters
+$$('[data-split]').forEach(el => {
+  el.innerHTML = [...el.dataset.split].map((c, i) => `<span class="w ${i >= 0 ? '' : ''}">${c}</span>`).join('');
+});
+
+// horizontal motion-blur filters
+(function () {
+  let s = '';
+  for (let i = 1; i <= 40; i++) s += `<filter id="hb${i}" x="-60%" y="-10%" width="220%" height="120%" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="${i * 1.6} 0"/></filter>`;
+  $('#filters').innerHTML = s;
+})();
+
+// ------------------------------------------------------------
+// background: blobs + bokeh
+// ------------------------------------------------------------
+const bg = $('#bg');
+const BLOBS = [
+  { c: 'rgba(139,92,255,0.35)', r: 900, x: -500, y: -250, sx: 120, sy: 60, f: 0.07 },
+  { c: 'rgba(255,62,165,0.22)', r: 800, x: 600, y: 300, sx: 140, sy: 80, f: 0.05 },
+  { c: 'rgba(62,224,255,0.16)', r: 700, x: 450, y: -380, sx: 100, sy: 70, f: 0.06 },
+  { c: 'rgba(90,45,255,0.25)', r: 1000, x: -300, y: 420, sx: 90, sy: 50, f: 0.04 },
+];
+BLOBS.forEach(b => {
+  const d = document.createElement('div'); d.className = 'bgblob';
+  d.style.cssText += `width:${b.r}px;height:${b.r}px;background:radial-gradient(circle, ${b.c} 0%, transparent 65%);`;
+  bg.appendChild(d); b.el = d;
+});
+const BOKEH = [];
+{ const R = rng(7);
+  for (let i = 0; i < 46; i++) {
+    const d = document.createElement('div'); d.className = 'bgblob';
+    const size = 6 + R() * 70, hue = [0, 1, 2][Math.floor(R() * 3)];
+    const col = ['255,62,165', '139,92,255', '62,224,255'][hue];
+    const soft = size > 30 ? 0 : 55;
+    d.style.cssText += `width:${size}px;height:${size}px;background:radial-gradient(circle, rgba(${col},${0.5 + R() * 0.4}) ${soft}%, rgba(${col},0) 70%);`;
+    bg.appendChild(d);
+    BOKEH.push({ el: d, x: R() * W, y: R() * H, vx: (R() - 0.5) * 30, vy: -8 - R() * 26, ph: R() * 6.28, depth: 0.3 + R() * 1.2, a: 0.25 + R() * 0.6 });
+  }
+}
+
+// grain
+const grainCv = $('#grain'), gctx = grainCv.getContext('2d');
+const grainTiles = [];
+{ const R = rng(99);
+  for (let n = 0; n < 6; n++) {
+    const img = gctx.createImageData(1000, 580);
+    for (let i = 0; i < img.data.length; i += 4) { const v = R() * 255; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255; }
+    grainTiles.push(img);
+  }
+  grainCv.style.width = '2000px'; grainCv.style.height = '1160px';
+}
+
+// ------------------------------------------------------------
+// procedural content
+// ------------------------------------------------------------
+// equalizer bars in poster
+{ let s = ''; for (let i = 0; i < 26; i++) s += `<rect x="${330 + i * 11}" y="0" width="6" height="10" rx="3"/>`; $('#eqbars').innerHTML = s; }
+const eqBars = $$('#eqbars rect');
+
+// guest rows
+const GUESTS = [
+  ['LM', 'Léa M.', '+1 · arrivée 23:42', 'BILLET', '62,224,255'],
+  ['YB', 'Yanis B.', '+3 · arrivée 23:48', 'BILLET', '62,224,255'],
+  ['IC', 'Inès C.', 'Table 4 · 6 pers.', 'VIP', '255,194,77'],
+  ['SK', 'Sarah K.', 'Invitée par le DJ', 'GUEST', '185,150,255'],
+  ['TN', 'Tom N.', '+2 · arrivée 00:05', 'BILLET', '62,224,255'],
+  ['AR', 'Adam R.', 'Table 7 · 4 pers.', 'VIP', '255,194,77'],
+  ['NB', 'Nora B.', 'Liste promoteur', 'GUEST', '185,150,255'],
+];
+$('#grows').innerHTML = GUESTS.map(g => `<div class="grow"><div class="av" style="background:rgba(${g[4]},.16);color:rgb(${g[4]})">${g[0]}</div><div class="nm">${g[1]}<small>${g[2]}</small></div><span class="tagk" style="background:rgba(${g[4]},.12);color:rgb(${g[4]})">${g[3]}</span><div class="chk"><b data-icon="check" data-c="#06210f" data-s="24"></b></div></div>`).join('');
+$$('#grows [data-icon]').forEach(el => { el.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#06210f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">${ICONS.check}</svg>`; });
+
+// QR
+{ const R = rng(2024); let s = '<rect width="25" height="25" fill="#fff"/>';
+  const finder = (x, y) => `<rect x="${x}" y="${y}" width="7" height="7" fill="#120a2e"/><rect x="${x + 1}" y="${y + 1}" width="5" height="5" fill="#fff"/><rect x="${x + 2}" y="${y + 2}" width="3" height="3" fill="#120a2e"/>`;
+  const inF = (x, y) => (x < 8 && y < 8) || (x > 16 && y < 8) || (x < 8 && y > 16);
+  for (let y = 0; y < 25; y++) for (let x = 0; x < 25; x++) if (!inF(x, y) && R() > 0.52) s += `<rect x="${x}" y="${y}" width="1" height="1" fill="#120a2e"/>`;
+  s += finder(0, 0) + finder(18, 0) + finder(0, 18);
+  $('#qrsvg').innerHTML = s;
+}
+
+// chart
+const CH = (() => {
+  const R = rng(5), pts = []; const n = 40;
+  for (let i = 0; i <= n; i++) {
+    const x = (i / n) * 784; const k = i / n;
+    const base = 210 - 175 * Math.pow(k, 1.35) - 18 * Math.sin(k * 9) * (1 - k * 0.5);
+    pts.push([x, base + (R() - 0.5) * 14]);
+  }
+  pts[n][1] = 22;
+  let d = `M${pts[0][0]},${pts[0][1]}`;
+  for (let i = 1; i < pts.length; i++) { const p0 = pts[i - 1], p1 = pts[i]; const mx = (p0[0] + p1[0]) / 2; d += ` C${mx},${p0[1]} ${mx},${p1[1]} ${p1[0]},${p1[1]}`; }
+  $('#cline').setAttribute('d', d);
+  $('#carea').setAttribute('d', d + ` L784,230 L0,230 Z`);
+  return pts;
+})();
+const chartY = x => { const i = clamp(Math.floor(x / 784 * 40), 0, 39); const p0 = CH[i], p1 = CH[i + 1]; const k = (x - p0[0]) / (p1[0] - p0[0]); const s = k * k * (3 - 2 * k); return lerp(p0[1], p1[1], s); };
+
+// map
+const PIN = { x: 950, y: 610 };
+{ const R = rng(31); let s = '';
+  s += `<path d="M-50,980 C300,900 520,1080 820,1000 S1400,760 1960,880" stroke="rgba(62,120,255,0.28)" stroke-width="70" fill="none" stroke-linecap="round"/>`;
+  s += `<path d="M-50,980 C300,900 520,1080 820,1000 S1400,760 1960,880" stroke="rgba(62,224,255,0.25)" stroke-width="3" fill="none"/>`;
+  // parks
+  for (let i = 0; i < 6; i++) s += `<rect x="${R() * 1700}" y="${R() * 1100}" width="${120 + R() * 200}" height="${80 + R() * 150}" rx="20" fill="rgba(139,92,255,0.07)"/>`;
+  // minor streets
+  for (let i = 0; i < 34; i++) { const x = i * 60 + R() * 30 - 15; s += `<line x1="${x}" y1="0" x2="${x + (R() - 0.5) * 120}" y2="1300" stroke="rgba(255,255,255,0.06)" stroke-width="${2 + R() * 3}"/>`; }
+  for (let i = 0; i < 24; i++) { const y = i * 58 + R() * 30 - 15; s += `<line x1="0" y1="${y}" x2="1900" y2="${y + (R() - 0.5) * 120}" stroke="rgba(255,255,255,0.06)" stroke-width="${2 + R() * 3}"/>`; }
+  // avenues
+  s += `<path d="M0,200 L1900,1150" stroke="rgba(185,150,255,0.22)" stroke-width="10"/>`;
+  s += `<path d="M300,1300 L1500,0" stroke="rgba(185,150,255,0.22)" stroke-width="10"/>`;
+  s += `<path d="M0,620 L1900,600" stroke="rgba(185,150,255,0.18)" stroke-width="8"/>`;
+  s += `<circle cx="${PIN.x}" cy="${PIN.y}" r="180" fill="none" stroke="rgba(255,62,165,0.12)" stroke-width="2" stroke-dasharray="6 10"/>`;
+  // other (grey) venues
+  for (let i = 0; i < 16; i++) { const x = 100 + R() * 1700, y = 100 + R() * 1100; if (Math.hypot(x - PIN.x, y - PIN.y) < 260) continue; s += `<circle cx="${x}" cy="${y}" r="9" fill="rgba(255,255,255,0.18)"/>`; }
+  $('#mapsvg').innerHTML = s;
+}
+const UDOTS = [];
+{ const R = rng(77); const host = $('#dots');
+  for (let i = 0; i < 70; i++) {
+    const a = R() * Math.PI * 2, r = 260 + R() * 700;
+    const d = document.createElement('div'); d.className = 'udot';
+    const c = R() > 0.5 ? '62,224,255' : (R() > 0.5 ? '255,62,165' : '185,150,255');
+    d.style.background = `rgb(${c})`; d.style.boxShadow = `0 0 16px rgb(${c})`;
+    host.appendChild(d);
+    UDOTS.push({ el: d, x: PIN.x + Math.cos(a) * r * 1.3, y: PIN.y + Math.sin(a) * r * 0.85, delay: R() * 1.6, dur: 1.4 + R() * 1.4, wob: R() * 6 });
+  }
+  const rh = $('#rings');
+  for (let i = 0; i < 4; i++) { const d = document.createElement('div'); d.className = 'ring'; rh.appendChild(d); }
+}
+const RINGS = $$('#rings .ring');
+
+// ============================================================
+//  render helpers
+// ============================================================
+const CUR = { hb: 0, blur: 0 };
+function tf(el, p) {
+  const x = p.x || 0, y = p.y || 0, z = p.z || 0, s = p.s == null ? 1 : p.s, sx = p.sx == null ? 1 : p.sx;
+  const o = p.o == null ? 1 : p.o;
+  el.style.transform = `translate(-50%,-50%) translate3d(${960 + x}px,${540 + y}px,${z}px) rotateX(${p.rx || 0}deg) rotateY(${p.ry || 0}deg) rotateZ(${p.rz || 0}deg) scale(${s * sx},${s})`;
+  el.style.opacity = clamp(o);
+  el.style.visibility = o <= 0.002 ? 'hidden' : 'visible';
+  const blur = (p.blur || 0) + CUR.blur, hb = Math.round((p.hb || 0) + CUR.hb);
+  let f = '';
+  if (blur > 0.25) f += `blur(${blur.toFixed(2)}px) `;
+  if (hb >= 1) f += `url(#hb${Math.min(40, hb)})`;
+  el.style.filter = f || 'none';
+}
+function word(el, t, t0, opt = {}) {
+  const d = opt.d || 0.55, k = ep(t, t0, d, E.outExpo);
+  const y = (opt.y == null ? 60 : opt.y) * (1 - k);
+  el.style.transform = `translateY(${y}px) scale(${lerp(opt.s0 || 1.0, 1, k)})`;
+  el.style.opacity = k;
+  const b = (opt.blur == null ? 18 : opt.blur) * (1 - k);
+  el.style.filter = b > 0.3 ? `blur(${b.toFixed(1)}px)` : 'none';
+}
+// generic "cell flies in from depth" state
+function flyIn(t, t0, base, opt = {}) {
+  const d = opt.d || 0.8, k = ep(t, t0, d, opt.e || E.outExpo);
+  const from = Object.assign({ x: 0, y: 60, z: -700, rx: 18, ry: 0, rz: 0, blur: 22, o: 0 }, opt.from || {});
+  const r = {};
+  for (const key of ['x', 'y', 'z', 'rx', 'ry', 'rz']) r[key] = (base[key] || 0) + from[key] * (1 - k);
+  r.blur = from.blur * (1 - k) + (base.blur || 0);
+  r.o = lerp(from.o, base.o == null ? 1 : base.o, clamp(k * 1.6));
+  r.s = base.s == null ? 1 : base.s;
+  return r;
+}
+function bob(t, ph, amp = 8) { return Math.sin(t * 1.3 + ph) * amp; }
+function sceneOn(id, t, a, b) {
+  const el = $('#' + id); const on = t >= a && t < b; el.style.visibility = 'visible'; el.style.display = on ? 'block' : 'none'; return on;
+}
+// whip in/out (horizontal camera swipe with smear)
+function whip(t, a, b, inDur = 0.45, outDur = 0.45) {
+  let x = 0, hb = 0;
+  if (t < a + inDur) { const k = E.outCubic(lin(t, a, a + inDur)); x = 1700 * (1 - k); hb = 36 * (1 - k); }
+  if (t > b - outDur) { const k = E.inCubic(lin(t, b - outDur, b)); x = -1700 * k; hb = Math.max(hb, 36 * k); }
+  return { x, hb };
+}
+function cam(id, p) {
+  $('#' + id).style.transform = `translate3d(${p.x || 0}px,${p.y || 0}px,${p.z || 0}px) rotateX(${p.rx || 0}deg) rotateY(${p.ry || 0}deg) rotateZ(${p.rz || 0}deg)`;
+}
+
+// cache
+const S1W = $$('#s1h .w'), S2W = $$('#s2h .w'), S3W = $$('#s3h .w'), S4W = $$('#s4h .w'), S5W = $$('#s5h .w'), S6W = $$('#s6h .w'), S7W = $$('#s7tag .w');
+const S0L = $$('#s0word .w'), S7L = $$('#s7word .w');
+const FIELDS = $$('#evcard .field'), NTS = $$('#s3 .nt'), KPS = $$('#s5 .kp'), BGC = $$('#s1 .bgc');
+const GROWS = $$('#grows .grow');
+const pd = el => el.dataset.p.split(',').map(Number);
+
+// ============================================================
+//  SCENES
+// ============================================================
+function S0(t) {
+  if (!sceneOn('s0', t, 0, 4.05)) return;
+  CUR.hb = 0; CUR.blur = 0;
+  // exit: rush toward camera
+  const ex = E.inExpo(lin(t, 3.55, 4.0));
+  cam('s0', { z: 900 * ex });
+  CUR.blur = 14 * ex;
+  const pulse = Math.pow(Math.max(0, Math.cos((t % BEAT) / BEAT * Math.PI * 0.5)), 6);
+  const dotIn = ep(t, 0.15, 1.0, E.outCubic);
+  const grow = ep(t, 1.5, 0.55, E.outBack);
+  tf($('#s0glow'), { s: (0.35 + 0.25 * dotIn + 0.15 * pulse * (t < 1.5 ? 1 : 0)) * (1 + 0.6 * ep(t, 1.5, 0.6)), o: 0.9 * dotIn * (1 - ex) });
+  tf($('#s0dot'), { s: (dotIn * (1 + 0.35 * pulse)) * (1 + 3 * lin(t, 1.45, 1.65)), o: dotIn * (1 - lin(t, 1.55, 1.7)) });
+  const rk = lin(t, 1.55, 2.3);
+  tf($('#s0ring'), { s: 0.2 + 3.2 * E.outCubic(rk), o: rk > 0 && rk < 1 ? 0.9 * (1 - rk) : 0, z: 0 });
+  // icon
+  const slide = ep(t, 2.05, 0.7, E.inOut);
+  const iconX = -330 * slide;
+  tf($('#s0icon'), { x: iconX, s: 0.06 + 0.94 * grow, o: lin(t, 1.5, 1.6) * (1 - ex), rz: -25 * (1 - grow) });
+  $('#s0icon .shine').style.transform = `translateX(${lerp(-120, 120, ep(t, 2.4, 0.8, E.inOut))}%)`;
+  // wordmark
+  tf($('#s0word'), { x: 130, y: -24, o: (t > 2.1 ? 1 : 0) * (1 - ex) });
+  S0L.forEach((l, i) => word(l, t, 2.2 + i * 0.06, { y: 80, blur: 20, d: 0.6 }));
+  tf($('#s0pill'), { x: 130, y: 110, o: ep(t, 2.75, 0.5) * (1 - ex), blur: 10 * (1 - ep(t, 2.75, 0.5)) });
+  $('#s0pill .pill').style.letterSpacing = `${lerp(0.7, 0.3, ep(t, 2.75, 0.8))}em`;
+}
+
+function S1(t) {
+  if (!sceneOn('s1', t, 4.0, 7.0)) return;
+  const w = whip(t, 4.0, 7.0, 0.001, 0.45);
+  CUR.hb = w.hb; CUR.blur = 0;
+  // arrive from the S0 zoom: start slightly zoomed out
+  const arr = ep(t, 4.0, 0.9, E.outExpo);
+  cam('s1', { x: w.x, z: -500 * (1 - arr), rx: 4 * Math.sin(t * 0.7), ry: -3 + 6 * lin(t, 4, 7) });
+  BGC.forEach((el, i) => {
+    const [x, y, z, rz] = pd(el);
+    const p = flyIn(t, 4.1 + i * 0.12, { x: x + (t - 4) * (x > 0 ? 12 : -12), y: y + bob(t, i, 10), z, rz, blur: z < -400 ? 5 : z < -200 ? 2.5 : 0, o: 0.85 }, { d: 1.0, from: { x: -x * 0.4, y: -y * 0.4, z: -600, blur: 20, o: 0, rx: 0, rz: 0 } });
+    tf(el, p);
+  });
+  tf($('#s1h'), { z: 40 * lin(t, 4, 7) });
+  const times = [4.05, 4.3, 4.55, 5.05, 5.3, 5.55];
+  S1W.forEach((el, i) => word(el, t, times[i], { y: 0, s0: 1.6, blur: 26, d: 0.5 }));
+}
+
+function S2(t) {
+  if (!sceneOn('s2', t, 7.0, 11.0)) return;
+  const w = whip(t, 7.0, 11.0);
+  CUR.hb = w.hb; CUR.blur = 0;
+  cam('s2', { x: w.x, rx: 3, ry: lerp(4, -3, lin(t, 7, 11)) });
+  tf($('#s2h'), { x: -470, y: -10 });
+  const wt = [7.15, 7.35, 7.5, 7.75, 7.9];
+  S2W.forEach((el, i) => word(el, t, wt[i], { y: 50, blur: 16 }));
+  $('#s2h .kicker').style.opacity = ep(t, 7.1, 0.5);
+  // card
+  const cp = flyIn(t, 7.15, { x: 420, y: 10 + bob(t, 0, 6), ry: lerp(-20, -10, lin(t, 7, 11)), rx: 4 }, { d: 0.9, from: { x: 300, y: 80, z: -900, rx: 25, ry: -30, blur: 24, o: 0 } });
+  tf($('#evcard-w'), cp);
+  // eq bars
+  eqBars.forEach((b, i) => { const h = 18 + 70 * Math.abs(Math.sin(t * 6 + i * 0.7) * Math.sin(t * 2.3 + i * 0.31)); b.setAttribute('y', 200 - h); b.setAttribute('height', h); });
+  // fields typing
+  const FT = [[7.85, 8.25], [8.25, 8.85], [8.85, 9.05], [9.05, 9.35]];
+  FIELDS.forEach((f, i) => {
+    const v = f.querySelector('.v'), full = v.dataset.full; const k = lin(t, FT[i][0], FT[i][1]);
+    const n = Math.round(full.length * k);
+    const active = t >= FT[i][0] && t < FT[i][1] + 0.12;
+    v.innerHTML = full.slice(0, n) + (active ? '<span class="caret"></span>' : '');
+    f.classList.toggle('focus', active);
+  });
+  // cursor + press
+  const ck = ep(t, 9.1, 0.5, E.outCubic);
+  const press = clamp(1 - Math.abs(t - 9.68) / 0.09);
+  tf($('#cursor'), { x: lerp(820, 470, ck), y: lerp(560, 330, ck) + 4 * press, z: 60, s: 1 - 0.15 * press, o: ck * (1 - lin(t, 10.0, 10.2)) });
+  $('#pubbtn').style.transform = `scale(${1 - 0.04 * press})`;
+  const rk = lin(t, 9.66, 10.2);
+  $('#ripple').style.transform = `translate(-50%,-50%) scale(${rk * 14})`;
+  $('#ripple').style.opacity = rk > 0 ? 0.6 * (1 - rk) : 0;
+  $('#pubbtn .ok').style.opacity = ep(t, 9.78, 0.25);
+  // toast
+  const tp = flyIn(t, 9.9, { x: 360, y: 400, z: 180, rx: 0, ry: -6 }, { d: 0.7, from: { x: 60, y: -260, z: -300, rx: -20, blur: 16, o: 0 } });
+  tf($('#s2toast'), tp);
+}
+
+function S3(t) {
+  if (!sceneOn('s3', t, 11.0, 15.0)) return;
+  const w = whip(t, 11.0, 15.0);
+  CUR.hb = w.hb; CUR.blur = 0;
+  cam('s3', { x: w.x, rx: 6, z: -60 + 80 * lin(t, 11, 15), ry: lerp(-3, 3, lin(t, 11, 15)) });
+  tf($('#s3h'), { y: -400, z: 60 });
+  $('#s3h .kicker').style.opacity = ep(t, 11.1, 0.5);
+  word(S3W[0], t, 11.15, { y: 50 }); word(S3W[1], t, 11.35, { y: 50 });
+  tf($('#capw'), flyIn(t, 11.2, { x: 0, y: 60 + bob(t, 1, 5), z: 0, rx: 4 }, { d: 0.9, from: { y: 120, z: -900, rx: 30, blur: 24, o: 0 } }));
+  const ck = E.outCubic(lin(t, 11.5, 14.1));
+  const n = Math.round(438 * ck);
+  $('#capn').textContent = n;
+  $('#capbar').style.width = (n / 450 * 100) + '%';
+  $('#cappct').textContent = Math.round(n / 450 * 100) + ' %';
+  const bk = ep(t, 13.9, 0.5, E.outBack);
+  $('#capbadge').style.transform = `scale(${bk})`; $('#capbadge').style.opacity = clamp(bk);
+  const NT = [11.6, 12.0, 12.45, 12.85, 13.3, 13.7];
+  NTS.forEach((el, i) => {
+    const [x, y, z] = pd(el);
+    const p = flyIn(t, NT[i], { x, y: y + bob(t, i * 1.7, 9), z, ry: x > 0 ? -12 : 12, rz: x > 0 ? 1.5 : -1.5 }, { d: 0.7, from: { x: x * 0.6, y: 40, z: -800, rx: 0, ry: x > 0 ? -30 : 30, blur: 24, o: 0 } });
+    tf(el, p);
+  });
+}
+
+function S4(t) {
+  if (!sceneOn('s4', t, 15.0, 19.0)) return;
+  const w = whip(t, 15.0, 19.0);
+  CUR.hb = w.hb; CUR.blur = 0;
+  cam('s4', { x: w.x, rx: 4, ry: lerp(5, -4, lin(t, 15, 19)) });
+  tf($('#s4h'), { x: 420, y: -380, z: 40 });
+  $('#s4h .kicker').style.opacity = ep(t, 15.1, 0.5);
+  [15.15, 15.3, 15.45].forEach((tt, i) => word(S4W[i], t, tt, { y: 50 }));
+  tf($('#guestw'), flyIn(t, 15.15, { x: -380, y: 40 + bob(t, 2, 5), ry: 12, rx: 3 }, { d: 0.9, from: { x: -300, y: 60, z: -900, ry: 35, rx: 20, blur: 24, o: 0 } }));
+  const CT = [16.0, 16.4, 16.8, 17.2, 17.6];
+  let cnt = 283;
+  GROWS.forEach((r, i) => {
+    const k = ep(t, 15.35 + i * 0.07, 0.6);
+    r.style.transform = `translateX(${(1 - k) * -40}px)`; r.style.opacity = k;
+    const b = r.querySelector('.chk b');
+    const ck = i < CT.length ? ep(t, CT[i], 0.4, E.outBack) : 0;
+    b.style.transform = `scale(${ck})`;
+    if (i < CT.length && t >= CT[i]) cnt += [2, 4, 6, 1, 3][i];
+    r.style.background = i < CT.length ? `rgba(77,255,166,${0.10 * clamp(1 - Math.abs(t - CT[i] - 0.15) / 0.35)})` : 'transparent';
+  });
+  $('#gcount').textContent = cnt;
+  tf($('#qrw'), flyIn(t, 15.4, { x: 430, y: 70 + bob(t, 4, 6), ry: -14, rx: 3, z: 60 }, { d: 0.9, from: { x: 300, y: 80, z: -900, ry: -35, rx: 20, blur: 24, o: 0 } }));
+  const sk = lin(t, 15.9, 17.45);
+  const sweep = (sk * 2) % 1; const tri = sweep < 0.5 ? sweep * 2 : 2 - sweep * 2;
+  $('#scan').style.top = (-90 + tri * 420) + 'px';
+  $('#scan').style.opacity = sk > 0 && sk < 1 ? 1 : 0;
+  const ok = ep(t, 17.5, 0.35);
+  $('#qrok').style.opacity = ok;
+  $('#qrok').firstElementChild.style.transform = `scale(${ep(t, 17.5, 0.5, E.outBack)})`;
+}
+
+function S5(t) {
+  if (!sceneOn('s5', t, 19.0, 23.0)) return;
+  const w = whip(t, 19.0, 23.0);
+  CUR.hb = w.hb; CUR.blur = 0;
+  cam('s5', { x: w.x, rx: 8, ry: lerp(12, -8, E.inOut(lin(t, 19, 23))), z: -80 + 120 * lin(t, 19, 23) });
+  tf($('#s5h'), { x: -330, y: -400, z: 80 });
+  $('#s5h .kicker').style.opacity = ep(t, 19.1, 0.5);
+  word(S5W[0], t, 19.15, { y: 50 }); word(S5W[1], t, 19.35, { y: 50 });
+  tf($('#revw'), flyIn(t, 19.15, { x: -20, y: 70 + bob(t, 3, 5), rx: 2 }, { d: 0.9, from: { y: 120, z: -1000, rx: 30, blur: 24, o: 0 } }));
+  const ck = E.outCubic(lin(t, 19.5, 21.9));
+  $('#revn').textContent = fr(12480 * ck) + ' €';
+  const cx = 784 * E.inOut(lin(t, 19.5, 21.9));
+  $('#cclipr').setAttribute('width', cx);
+  const cy = chartY(cx);
+  $('#cdot').setAttribute('cx', cx); $('#cdot').setAttribute('cy', cy);
+  $('#cdot').setAttribute('r', 8 + 3 * Math.pow(Math.max(0, Math.cos((t % BEAT) / BEAT * Math.PI * 0.5)), 4));
+  $('#cdot').style.opacity = cx > 1 ? 1 : 0;
+  const KT = [19.6, 19.8, 20.0, 20.2];
+  KPS.forEach((el, i) => {
+    const [x, y, z] = pd(el);
+    tf(el, flyIn(t, KT[i], { x, y: y + bob(t, i * 2.1, 10), z, ry: x > 0 ? -16 : 16, rz: x > 0 ? 2 : -2 }, { d: 0.8, from: { x: x * 0.5, y: 0, z: -900, rx: 0, ry: x > 0 ? -40 : 40, blur: 24, o: 0 } }));
+    el.querySelectorAll('[data-count]').forEach(c => { c.textContent = fr(+c.dataset.count * E.outCubic(lin(t, KT[i] + 0.2, KT[i] + 1.8))); });
+  });
+}
+
+function S6(t) {
+  if (!sceneOn('s6', t, 23.0, 27.05)) return;
+  CUR.hb = 0; CUR.blur = 0;
+  const ink = E.outCubic(lin(t, 23.0, 23.45));
+  const ex = E.inExpo(lin(t, 26.45, 27.0));
+  CUR.hb = 36 * (1 - ink);
+  cam('s6', { x: 1700 * (1 - ink), z: 1100 * ex, y: 120 * ex });
+  CUR.blur = 10 * ex;
+  // map plane
+  const mk = ep(t, 23.0, 1.1, E.outExpo);
+  const rz = lerp(-14, 6, E.inOut(lin(t, 23, 27)));
+  const mapP = { x: 0, y: 170, z: lerp(-700, -150, mk), rx: lerp(78, 60, mk), rz, o: clamp(mk * 2) };
+  tf($('#mapw'), mapP);
+  // pin projected position approx: centre of map + pin offset rotated
+  const dx = PIN.x - 950, dy = PIN.y - 650;
+  // dots flow
+  let arrived = 0;
+  UDOTS.forEach(d => {
+    const k = E.inOut(lin(t, 23.7 + d.delay, 23.7 + d.delay + d.dur));
+    const x = lerp(d.x, PIN.x, k) + Math.sin(t * 2 + d.wob) * 10 * (1 - k);
+    const y = lerp(d.y, PIN.y, k) + Math.cos(t * 2 + d.wob) * 10 * (1 - k);
+    d.el.style.transform = `translate(${x}px,${y}px) scale(${1 - 0.6 * k})`;
+    d.el.style.opacity = clamp(lin(t, 23.3, 23.8)) * (k >= 1 ? 0 : 1);
+    if (k >= 1) arrived++;
+  });
+  RINGS.forEach((r, i) => {
+    const ph = ((t - 23.6 + i * BEAT) % (BEAT * 4)) / (BEAT * 4);
+    const R = 20 + ph * 320;
+    r.style.cssText = `width:${R * 2}px;height:${R * 2}px;left:${PIN.x - R}px;top:${PIN.y - R}px;opacity:${t > 23.6 ? (1 - ph) * 0.9 : 0}`;
+  });
+  // pin & label as billboards, placed where the pin lands on the tilted plane
+  const drop = ep(t, 23.6, 0.6, E.outBack);
+  const proj = projectOnPlane(mapP, dx, dy);
+  tf($('#pin'), { x: proj.x, y: proj.y - 60 - 240 * (1 - drop), z: proj.z + 10, o: clamp(lin(t, 23.6, 23.75)), s: 1.15 });
+  tf($('#label'), flyIn(t, 24.2, { x: proj.x + 20, y: proj.y - 230 + bob(t, 1, 6), z: proj.z + 40 }, { d: 0.7, from: { y: 60, z: -300, rx: 20, blur: 16, o: 0 } }));
+  $('#enroute').textContent = Math.round(lerp(0, 86, E.outCubic(lin(t, 24.3, 26.6))));
+  tf($('#s6h'), { y: -400, z: 60 });
+  $('#s6h .kicker').style.opacity = ep(t, 23.3, 0.5);
+  S6W.forEach((el, i) => word(el, t, 23.35 + i * 0.12, { y: 50 }));
+}
+// project a point on the map plane (offset dx,dy from its centre) into the scene's 3D space
+function projectOnPlane(p, dx, dy) {
+  const rz = p.rz * Math.PI / 180, rx = p.rx * Math.PI / 180;
+  // rotateX then rotateZ applied in CSS order: transform = ... rotateX rotateY rotateZ -> point is rotated by Z first, then X
+  let x = dx * Math.cos(rz) - dy * Math.sin(rz);
+  let y = dx * Math.sin(rz) + dy * Math.cos(rz);
+  let z = 0;
+  const y2 = y * Math.cos(rx) - z * Math.sin(rx);
+  const z2 = y * Math.sin(rx) + z * Math.cos(rx);
+  return { x: p.x + x, y: p.y + y2, z: p.z + z2 };
+}
+
+function S7(t) {
+  if (!sceneOn('s7', t, 26.95, 40)) return;
+  CUR.hb = 0; CUR.blur = 0;
+  cam('s7', { z: 60 * lin(t, 27, 32) });
+  const g = ep(t, 27.0, 0.6, E.outBack);
+  const fade = 1 - lin(t, 31.3, 31.95);
+  tf($('#s7glow'), { y: -120, s: 0.5 + 0.5 * ep(t, 27, 1.2), o: 0.9 * fade });
+  const rk = lin(t, 27.0, 27.8);
+  tf($('#s7ring'), { y: -150, s: 0.3 + 4 * E.outCubic(rk), o: rk > 0 && rk < 1 ? 1 - rk : 0 });
+  // lockup: icon + wordmark, centred
+  tf($('#s7icon'), { x: -330, y: -150, s: 0.1 + 0.9 * g, rz: -30 * (1 - g), o: clamp(lin(t, 27, 27.1)) * fade });
+  $('#s7icon .shine').style.transform = `translateX(${lerp(-120, 120, ep(t, 28.0, 0.8, E.inOut))}%)`;
+  tf($('#s7word'), { x: 105, y: -150, o: (t > 27.2 ? 1 : 0) * fade });
+  S7L.forEach((l, i) => word(l, t, 27.25 + i * 0.05, { y: 70, blur: 20, d: 0.6 }));
+  tf($('#s7tag'), { y: 40, o: fade });
+  S7W.forEach((el, i) => word(el, t, 28.1 + i * 0.18, { y: 40 }));
+  const ck = ep(t, 28.9, 0.6, E.outBack);
+  const pulse = Math.pow(Math.max(0, Math.cos((t % BEAT) / BEAT * Math.PI * 0.5)), 6);
+  tf($('#s7cta'), { y: 190, s: (0.6 + 0.4 * ck) * (1 + 0.015 * pulse * (t > 29.5 ? 1 : 0)), o: clamp(ck) * fade, blur: 10 * (1 - clamp(ck)) });
+  $('#ctaarrow').style.transform = `translateX(${6 * Math.sin(t * 6)}px)`;
+  tf($('#s7feat'), { y: 330, o: ep(t, 29.5, 0.6) * fade, blur: 8 * (1 - ep(t, 29.5, 0.6)) });
+}
+
+// ============================================================
+//  global render
+// ============================================================
+function renderBG(t, frame) {
+  BLOBS.forEach((b, i) => {
+    const x = 960 + b.x + Math.sin(t * b.f * 6.28 + i) * b.sx - b.r / 2;
+    const y = 540 + b.y + Math.cos(t * b.f * 6.28 + i * 2) * b.sy - b.r / 2;
+    b.el.style.transform = `translate(${x}px,${y}px)`;
+  });
+  BOKEH.forEach(p => {
+    let x = (p.x + p.vx * t * p.depth) % (W + 100); if (x < -50) x += W + 100;
+    let y = (p.y + p.vy * t * p.depth) % (H + 100); if (y < -50) y += H + 100;
+    p.el.style.transform = `translate(${x}px,${y}px)`;
+    p.el.style.opacity = p.a * (0.6 + 0.4 * Math.sin(t * 1.5 + p.ph));
+  });
+  gctx.putImageData(grainTiles[frame % grainTiles.length], 0, 0);
+  const R = rng(frame * 13 + 1);
+  grainCv.style.transform = `translate(${-R() * 40}px,${-R() * 40}px)`;
+  // global flash on scene cuts / impact
+  const fl = Math.max(
+    0.9 * clamp(1 - Math.abs(t - 27.0) / 0.28),
+    0.35 * clamp(1 - Math.abs(t - 4.0) / 0.18)
+  );
+  $('#flash').style.opacity = Math.max(fl, ...[7, 11, 15, 19, 23].map(T => 0.16 * clamp(1 - Math.abs(t - T) / 0.12)));
+  // light streak sweeping through each whip transition
+  let st = null;
+  [7, 11, 15, 19, 23].forEach((T, i) => { if (Math.abs(t - T) < 0.3) st = { k: (t - T + 0.3) / 0.6, y: [-60, 90, -120, 40, -20][i] }; });
+  const sk = $('#streak');
+  if (st) {
+    const x = lerp(1500, -1500, E.inOut(st.k));
+    sk.style.transform = `translate(${960 - 1300 + x}px,${540 - 120 + st.y}px) scaleY(${0.6 + 0.8 * Math.sin(Math.PI * st.k)})`;
+    sk.style.opacity = Math.sin(Math.PI * st.k);
+  } else sk.style.opacity = 0;
+  $('#stage').style.opacity = clamp(lin(t, 0, 0.25)) * (1 - lin(t, 31.6, 32));
+}
+
+window.DURATION = 32;
+window.renderAt = function (t, frame = 0) {
+  renderBG(t, frame);
+  S0(t); S1(t); S2(t); S3(t); S4(t); S5(t); S6(t); S7(t);
+};
+window.renderAt(0);
+document.fonts.ready.then(() => { window.READY = true; });
+
+// preview mode: ?play
+if (location.search.includes('play')) {
+  const t0 = performance.now(); let f = 0;
+  const loop = () => { const t = ((performance.now() - t0) / 1000) % 32; window.renderAt(t, f++); requestAnimationFrame(loop); };
+  loop();
+}
+if (location.hash) window.renderAt(parseFloat(location.hash.slice(1)));
+</script>
+</body>
+</html>
